@@ -20,11 +20,9 @@ const results = ref<Result[]>([])
 const current = ref(-1)
 const shown = computed(() => results.value[current.value] || null)
 
-const { data: presets } = await useFetch<{ id: string; label: string; credits: number }[]>('/api/presets', { default: () => [] })
 
 const mult = computed(() => (resolution.value === '2K' ? 2 : 1))
 const cost = computed(() => mult.value) // texte libre : 1 crédit (2 en 2K)
-const presetCost = (id: string) => (presets.value?.find(p => p.id === id)?.credits ?? 1) * mult.value
 const canGenerate = computed(() => !!main.value && prompt.value.trim().length > 0 && !busy.value)
 const goLabel = computed(() => {
   if (busy.value) return 'En cours…'
@@ -74,19 +72,17 @@ function onDrop(e: DragEvent) {
 }
 
 /* ---------- Génération ---------- */
-async function generate(preset?: string) {
-  if (busy.value || !main.value) return
-  if (!preset && !prompt.value.trim()) return
+async function generate() {
+  if (busy.value || !main.value || !prompt.value.trim()) return
   if (!me.value) { authOpen.value = 'register'; return }
-  const needed = preset ? presetCost(preset) : cost.value
-  if (me.value.credits < needed) { buyOpen.value = true; return }
+  if (me.value.credits < cost.value) { buyOpen.value = true; return }
   busy.value = true
   try {
     const images = [main.value!.data]
     const res = await fetch('/api/edit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image: images[0], preset, prompt: prompt.value.trim(), resolution: resolution.value }),
+      body: JSON.stringify({ image: images[0], prompt: prompt.value.trim(), resolution: resolution.value }),
     })
     if (!res.ok) {
       const err = await res.json().catch(() => null)
@@ -97,7 +93,7 @@ async function generate(preset?: string) {
     const left = res.headers.get('X-Credits')
     if (left !== null) setCredits(Number(left))
     const blob = await res.blob()
-    results.value.push({ url: URL.createObjectURL(blob), label: (preset && presets.value?.find(p => p.id === preset)?.label) || prompt.value.trim() })
+    results.value.push({ url: URL.createObjectURL(blob), label: prompt.value.trim() })
     if (results.value.length > 20) URL.revokeObjectURL(results.value.shift()!.url)
     current.value = results.value.length - 1
     notify('Image générée')
@@ -205,17 +201,10 @@ async function save() {
 
       <!-- Barre de génération (fixe en bas sur mobile, panneau sur ordinateur) -->
       <aside class="composer">
-        <div class="presets">
-          <button
-            v-for="p in presets" :key="p.id" :disabled="busy || !main"
-            :title="`Générer : ${p.label} (${presetCost(p.id)} crédit${presetCost(p.id) > 1 ? 's' : ''})`" @click="generate(p.id)"
-          >{{ p.label }}<span v-if="presetCost(p.id) > 1" class="pc"> · {{ presetCost(p.id) }}</span></button>
-        </div>
-        <div class="or"><span>ou décris toi-même</span></div>
         <label for="prompt" class="sr">Décris la modification</label>
         <textarea
           id="prompt" v-model="prompt" rows="2" enterkeyhint="send"
-          placeholder="Ex. : une veste en cuir noir"
+          placeholder="Décris la modification, ex. : mets-lui une veste en cuir noir"
           @keydown.enter.exact.prevent="generate()"
         />
         <div class="actions">
@@ -242,7 +231,7 @@ async function save() {
 .logo { font-family: var(--f-display); font-weight: 800; font-size: 1.2rem; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; }
 .logo i { width: 20px; height: 20px; border-radius: 6px; background: conic-gradient(from 200deg, var(--mask), var(--accent), var(--mask)); }
 
-.layout { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 0 max(14px, env(safe-area-inset-right, 0px)) calc(190px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
+.layout { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 0 max(14px, env(safe-area-inset-right, 0px)) calc(150px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
 .left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 
 /* Deux blocs côte à côte, même sur téléphone */
@@ -287,20 +276,11 @@ async function save() {
 
 /* Barre de génération fixée en bas sur mobile */
 .composer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(0, 0, 0, .12); display: flex; flex-direction: column; gap: 8px; padding: 10px max(14px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
-.presets { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
-.presets::-webkit-scrollbar { display: none; }
-.presets .pc { font-weight: 500; color: var(--muted); }
-.presets button { flex: 0 0 auto; min-height: 40px; border: 0; border-radius: 99px; padding: 0 14px; font-size: .88rem; font-weight: 600; white-space: nowrap; background: color-mix(in srgb, var(--mask) 14%, var(--surface)); color: var(--fg); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mask) 40%, transparent); }
-.or { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .75rem; }
-.or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
-.chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
-.chips::-webkit-scrollbar { display: none; }
-.chips button { flex: 0 0 auto; border: 1px solid var(--line); background: var(--bg); border-radius: 99px; padding: 6px 12px; font-size: .85rem; white-space: nowrap; }
 textarea { width: 100%; resize: none; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); padding: 10px 12px; font-size: 16px; min-height: 48px; }
 .actions { display: flex; gap: 8px; align-items: center; }
 .go { flex: 1; min-height: 48px; border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 1.05rem; }
 
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(200px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 12px; z-index: 20; max-width: calc(100% - 28px); text-align: center; font-weight: 500; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(150px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 12px; z-index: 20; max-width: calc(100% - 28px); text-align: center; font-weight: 500; }
 .toast.error { background: var(--danger); color: #fff; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); opacity: 0; }
 
@@ -310,7 +290,6 @@ textarea { width: 100%; resize: none; border: 1px solid var(--line); border-radi
   .left { flex: 1; }
   .drop { aspect-ratio: 4 / 3; }
   .composer { position: sticky; top: 12px; width: 340px; border: 1px solid var(--line); border-radius: var(--r); box-shadow: none; padding: 14px; }
-  .chips, .presets { flex-wrap: wrap; }
   textarea { min-height: 110px; }
   .toast { bottom: 24px; }
 }
