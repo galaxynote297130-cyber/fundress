@@ -2,7 +2,7 @@
 export default defineEventHandler(async (event) => {
   const body = await readBody<{ email?: string; password?: string }>(event)
   const user = await getUserByEmail(body?.email || '')
-  const ok = user?.passwordHash && await verifyPassword(user.passwordHash, body?.password || '')
+  const ok = user?.passwordHash && await checkPassword(user.passwordHash, body?.password || '')
 
   if (!user || !ok) {
     // Même message dans les deux cas : on ne révèle pas si l'email existe.

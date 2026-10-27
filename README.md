@@ -64,7 +64,29 @@ Repère : une génération coûte environ 0,04 $ chez Venice.
 
 ## Où sont les données
 
-En local, comptes, crédits et paiements sont stockés dans le dossier `.data/`. Ne le supprime pas, sinon les comptes sont perdus. Pour la mise en ligne sur Cloudflare, remplace le stockage `fs` de `nuxt.config.ts` par un namespace KV ou une base D1.
+- **Sur ton Mac** : comptes, crédits et paiements sont dans le dossier `.data/`. Ne le supprime pas, sinon les comptes sont perdus.
+- **Sur Cloudflare** : ils sont dans un namespace KV lié au projet sous le nom `DB` (voir ci-dessous).
+
+## Mise en ligne sur Cloudflare Pages
+
+Le projet est détecté automatiquement par Cloudflare : aucun fichier de configuration à ajouter.
+
+1. **Créer le stockage** : Cloudflare > Storage & Databases > KV > Create, nom `fundress-db`.
+2. **Créer le projet** : Workers & Pages > Create > Pages > Connect to Git, puis choisis le dépôt `fundress`.
+   - Framework preset : **Nuxt.js**
+   - Build command : `npm run build`
+   - Build output directory : `dist`
+3. **Variables et secrets** (Settings > Variables and Secrets, en mode *Secret* pour les clés) :
+   - `NUXT_VENICE_API_KEY`
+   - `NUXT_SESSION_PASSWORD` (32 caractères minimum)
+   - `NUXT_VENICE_MODEL` (optionnel)
+   - `NUXT_STRIPE_SECRET_KEY` et `NUXT_STRIPE_WEBHOOK_SECRET` (si tu utilises Stripe)
+   - `NODE_VERSION` = `22`
+4. **Lier le stockage** : Settings > Bindings > Add > KV namespace. Nom de la variable : `DB`, namespace : `fundress-db`.
+5. **Compatibilité** : Settings > Runtime > Compatibility flags, ajoute `nodejs_compat`.
+6. **Redéploie** : Deployments > ⋯ > Retry deployment, pour prendre en compte les étapes 3 à 5.
+
+Ensuite, chaque modification envoyée sur GitHub (branche `main`) met le site à jour automatiquement.
 
 ## Sécurité
 

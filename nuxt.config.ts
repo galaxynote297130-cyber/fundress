@@ -18,10 +18,17 @@ export default defineNuxtConfig({
     },
   },
 
-  // Base de données simple : fichiers dans le dossier .data/ (comptes, crédits, paiements).
-  // Pour Cloudflare, remplace par un namespace KV (voir README).
+  // Stockage des comptes, crédits et paiements :
+  // - sur Cloudflare Pages (variable CF_PAGES présente pendant le build) → namespace KV lié sous le nom "DB"
+  // - sur ton Mac → fichiers dans le dossier .data/
+  // Cloudflare Pages est détecté automatiquement : aucun réglage de "preset" à faire.
   nitro: {
     storage: {
+      db: process.env.CF_PAGES
+        ? { driver: 'cloudflare-kv-binding', binding: 'DB' }
+        : { driver: 'fs', base: './.data/db' },
+    },
+    devStorage: {
       db: { driver: 'fs', base: './.data/db' },
     },
   },

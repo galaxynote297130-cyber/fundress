@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 409, statusMessage: 'Un compte existe déjà avec cet email. Connecte-toi.' })
   }
 
-  const user = await createUser({ email, name: body?.name, passwordHash: await hashPassword(password) })
+  const user = await createUser({ email, name: body?.name, passwordHash: await makePasswordHash(password) })
   await setUserSession(event, { user: { id: user.id, email: user.email, name: user.name } })
   return publicUser(user)
 })
