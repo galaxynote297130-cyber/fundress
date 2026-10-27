@@ -30,17 +30,18 @@ export default defineEventHandler(async (event) => {
   const body = await readBody<{ image?: string; prompt?: string; preset?: string; resolution?: string }>(event)
   let prompt = (body?.prompt || '').trim()
   let model = veniceModel || DEFAULT_MODEL
+  let preset: Preset | undefined
 
-  // Bouton en un clic : le serveur choisit le prompt et le modèle
+  // Bouton en un clic : le serveur choisit le prompt, le modèle et le coût
   if (body?.preset) {
-    const p = PRESETS[body.preset]
-    if (!p) throw createError({ statusCode: 400, statusMessage: 'Préréglage inconnu.' })
-    prompt = prompt ? `${p.prompt} Additional details: ${prompt}` : p.prompt
-    if (p.model) model = p.model
+    preset = PRESETS[body.preset]
+    if (!preset) throw createError({ statusCode: 400, statusMessage: 'Préréglage inconnu.' })
+    prompt = prompt ? `${preset.prompt} Additional details: ${prompt}` : preset.prompt
+    if (preset.model) model = preset.model
   }
   const image = (body?.image || '').replace(/^data:image\/[\w+.-]+;base64,/, '')
   const resolution = body?.resolution === '2K' ? '2K' : '1K'
-  const cost = COSTS[resolution]
+  const cost = creditsFor(preset, resolution)
 
   if (!prompt) throw createError({ statusCode: 400, statusMessage: 'Décris la modification souhaitée.' })
   if (prompt.length > 2500) throw createError({ statusCode: 400, statusMessage: 'Description trop longue.' })

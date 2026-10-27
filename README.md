@@ -44,14 +44,17 @@ En ligne, déclare le webhook dans Stripe : `https://ton-domaine/api/stripe/webh
 2. URI de redirection autorisée : `http://localhost:3000/auth/google` (et `https://ton-domaine/auth/google` en ligne)
 3. Remplis les deux variables Google et mets `NUXT_PUBLIC_GOOGLE_LOGIN=true`
 
-## Boutons en un clic (prompt + modèle)
+## Boutons en un clic (prompt + modèle + coût)
 
-Les boutons « Tenue de soirée », « Costume », etc. sont définis dans `server/utils/presets.ts`. Chaque bouton a :
+Tout se règle dans `server/utils/presets.ts`. Chaque bouton a :
 - `label` : le texte affiché
-- `prompt` : le prompt envoyé à Venice (invisible pour l'utilisateur)
-- `model` : optionnel, le modèle Venice à utiliser pour ce bouton (sinon le modèle par défaut, `qwen-image-2-edit`)
+- `prompt` : l'instruction envoyée à Venice (invisible pour l'utilisateur)
+- `model` : le modèle Venice à utiliser (sinon `DEFAULT_MODEL`)
+- `credits` : les crédits débités en 1K (doublés en 2K)
 
-Le navigateur n'envoie que l'identifiant du bouton. Le serveur choisit le prompt et le modèle, puis appelle Venice. Si l'utilisateur a aussi écrit un texte, il est ajouté au prompt du bouton. Pour ajouter un bouton, ajoute une entrée dans `PRESETS` et relance le site.
+Le navigateur n'envoie que l'identifiant du bouton. Le serveur choisit le prompt, le modèle et le coût, puis appelle Venice. Si l'utilisateur a aussi écrit un texte, il est ajouté au prompt du bouton.
+
+Pour ajouter ou modifier un bouton : édite le fichier (sur github.com, icône crayon), clique sur « Commit changes », et le site se met à jour tout seul. Liste des modèles et prix : https://docs.venice.ai/models/image
 
 ## Régler les prix
 

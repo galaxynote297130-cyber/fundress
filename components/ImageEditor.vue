@@ -20,9 +20,11 @@ const results = ref<Result[]>([])
 const current = ref(-1)
 const shown = computed(() => results.value[current.value] || null)
 
-const { data: presets } = await useFetch<{ id: string; label: string }[]>('/api/presets', { default: () => [] })
+const { data: presets } = await useFetch<{ id: string; label: string; credits: number }[]>('/api/presets', { default: () => [] })
 
-const cost = computed(() => costs.value[resolution.value] ?? 1)
+const mult = computed(() => (resolution.value === '2K' ? 2 : 1))
+const cost = computed(() => mult.value) // texte libre : 1 crédit (2 en 2K)
+const presetCost = (id: string) => (presets.value?.find(p => p.id === id)?.credits ?? 1) * mult.value
 const canGenerate = computed(() => !!main.value && prompt.value.trim().length > 0 && !busy.value)
 const goLabel = computed(() => {
   if (busy.value) return 'En cours…'
@@ -76,7 +78,8 @@ async function generate(preset?: string) {
   if (busy.value || !main.value) return
   if (!preset && !prompt.value.trim()) return
   if (!me.value) { authOpen.value = 'register'; return }
-  if (me.value.credits < cost.value) { buyOpen.value = true; return }
+  const needed = preset ? presetCost(preset) : cost.value
+  if (me.value.credits < needed) { buyOpen.value = true; return }
   busy.value = true
   try {
     const images = [main.value!.data]
@@ -205,8 +208,8 @@ async function save() {
         <div class="presets">
           <button
             v-for="p in presets" :key="p.id" :disabled="busy || !main"
-            :title="`Générer : ${p.label}`" @click="generate(p.id)"
-          >{{ p.label }}</button>
+            :title="`Générer : ${p.label} (${presetCost(p.id)} crédit${presetCost(p.id) > 1 ? 's' : ''})`" @click="generate(p.id)"
+          >{{ p.label }}<span v-if="presetCost(p.id) > 1" class="pc"> · {{ presetCost(p.id) }}</span></button>
         </div>
         <div class="or"><span>ou décris toi-même</span></div>
         <label for="prompt" class="sr">Décris la modification</label>
@@ -286,6 +289,7 @@ async function save() {
 .composer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(0, 0, 0, .12); display: flex; flex-direction: column; gap: 8px; padding: 10px max(14px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
 .presets { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
 .presets::-webkit-scrollbar { display: none; }
+.presets .pc { font-weight: 500; color: var(--muted); }
 .presets button { flex: 0 0 auto; min-height: 40px; border: 0; border-radius: 99px; padding: 0 14px; font-size: .88rem; font-weight: 600; white-space: nowrap; background: color-mix(in srgb, var(--mask) 14%, var(--surface)); color: var(--fg); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mask) 40%, transparent); }
 .or { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .75rem; }
 .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
