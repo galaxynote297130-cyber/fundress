@@ -44,17 +44,15 @@ En ligne, déclare le webhook dans Stripe : `https://ton-domaine/api/stripe/webh
 2. URI de redirection autorisée : `http://localhost:3000/auth/google` (et `https://ton-domaine/auth/google` en ligne)
 3. Remplis les deux variables Google et mets `NUXT_PUBLIC_GOOGLE_LOGIN=true`
 
-## Boutons en un clic (prompt + modèle + coût)
+## Le bouton « Générer » (prompt caché)
 
-Tout se règle dans `server/utils/presets.ts`. Chaque bouton a :
-- `label` : le texte affiché
-- `prompt` : l'instruction envoyée à Venice (invisible pour l'utilisateur)
-- `model` : le modèle Venice à utiliser (sinon `DEFAULT_MODEL`)
-- `credits` : les crédits débités en 1K (doublés en 2K)
+Le site n'a qu'un bouton : **Générer**. Le navigateur envoie seulement la photo. Le serveur ajoute le prompt et le modèle, puis appelle Venice. Le prompt n'apparaît jamais sur le site, ni dans le navigateur, ni sur GitHub.
 
-Le navigateur n'envoie que l'identifiant du bouton. Le serveur choisit le prompt, le modèle et le coût, puis appelle Venice. Si l'utilisateur a aussi écrit un texte, il est ajouté au prompt du bouton.
+Il se règle dans Cloudflare : Settings > Variables and Secrets.
+- `NUXT_GENERATE_PROMPT` (type **Secret**) : ton prompt, aussi long que tu veux
+- `NUXT_VENICE_MODEL` : le modèle (`qwen-image-2-edit` par défaut)
 
-Pour ajouter ou modifier un bouton : édite le fichier (sur github.com, icône crayon), clique sur « Commit changes », et le site se met à jour tout seul. Liste des modèles et prix : https://docs.venice.ai/models/image
+Après chaque changement : Deployments > ⋯ > Retry deployment. Coût : 1 crédit en 1K, 2 en 2K.
 
 ## Régler les prix
 
@@ -114,4 +112,3 @@ Ensuite, chaque modification envoyée sur GitHub (branche `main`) met le site à
 | `server/api/credits/*` | Création du paiement Stripe et confirmation |
 | `server/api/stripe/webhook.post.ts` | Webhook Stripe |
 | `server/utils/store.ts` | Comptes, crédits, packs, prix |
-| `server/utils/presets.ts` | Boutons en un clic : prompt et modèle de chaque bouton |

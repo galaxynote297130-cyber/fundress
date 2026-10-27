@@ -10,7 +10,6 @@ type Slot = { url: string; data: string; name: string } | null
 const main = ref<Slot>(null)
 const over = ref(false)
 
-const prompt = ref('')
 const resolution = ref<'1K' | '2K'>('1K')
 const busy = ref(false)
 const message = ref<{ text: string; error?: boolean } | null>(null)
@@ -23,7 +22,7 @@ const shown = computed(() => results.value[current.value] || null)
 
 const mult = computed(() => (resolution.value === '2K' ? 2 : 1))
 const cost = computed(() => mult.value) // texte libre : 1 crédit (2 en 2K)
-const canGenerate = computed(() => !!main.value && prompt.value.trim().length > 0 && !busy.value)
+const canGenerate = computed(() => !!main.value && !busy.value)
 const goLabel = computed(() => {
   if (busy.value) return 'En cours…'
   if (!main.value) return 'Ajoute une photo'
@@ -73,7 +72,7 @@ function onDrop(e: DragEvent) {
 
 /* ---------- Génération ---------- */
 async function generate() {
-  if (busy.value || !main.value || !prompt.value.trim()) return
+  if (busy.value || !main.value) return
   if (!me.value) { authOpen.value = 'register'; return }
   if (me.value.credits < cost.value) { buyOpen.value = true; return }
   busy.value = true
@@ -82,7 +81,7 @@ async function generate() {
     const res = await fetch('/api/edit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image: images[0], prompt: prompt.value.trim(), resolution: resolution.value }),
+      body: JSON.stringify({ image: images[0], resolution: resolution.value }),
     })
     if (!res.ok) {
       const err = await res.json().catch(() => null)
@@ -93,7 +92,7 @@ async function generate() {
     const left = res.headers.get('X-Credits')
     if (left !== null) setCredits(Number(left))
     const blob = await res.blob()
-    results.value.push({ url: URL.createObjectURL(blob), label: prompt.value.trim() })
+    results.value.push({ url: URL.createObjectURL(blob), label: `Version ${results.value.length + 1}` })
     if (results.value.length > 20) URL.revokeObjectURL(results.value.shift()!.url)
     current.value = results.value.length - 1
     notify('Image générée')
@@ -201,12 +200,6 @@ async function save() {
 
       <!-- Barre de génération (fixe en bas sur mobile, panneau sur ordinateur) -->
       <aside class="composer">
-        <label for="prompt" class="sr">Décris la modification</label>
-        <textarea
-          id="prompt" v-model="prompt" rows="2" enterkeyhint="send"
-          placeholder="Décris la modification, ex. : mets-lui une veste en cuir noir"
-          @keydown.enter.exact.prevent="generate()"
-        />
         <div class="actions">
           <div class="seg">
             <button :aria-pressed="resolution === '1K'" @click="resolution = '1K'">1K</button>
@@ -231,7 +224,7 @@ async function save() {
 .logo { font-family: var(--f-display); font-weight: 800; font-size: 1.2rem; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; }
 .logo i { width: 20px; height: 20px; border-radius: 6px; background: conic-gradient(from 200deg, var(--mask), var(--accent), var(--mask)); }
 
-.layout { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 0 max(14px, env(safe-area-inset-right, 0px)) calc(150px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
+.layout { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 0 max(14px, env(safe-area-inset-right, 0px)) calc(96px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
 .left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 
 /* Deux blocs côte à côte, même sur téléphone */
@@ -276,11 +269,10 @@ async function save() {
 
 /* Barre de génération fixée en bas sur mobile */
 .composer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(0, 0, 0, .12); display: flex; flex-direction: column; gap: 8px; padding: 10px max(14px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
-textarea { width: 100%; resize: none; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); padding: 10px 12px; font-size: 16px; min-height: 48px; }
 .actions { display: flex; gap: 8px; align-items: center; }
 .go { flex: 1; min-height: 48px; border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 1.05rem; }
 
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(150px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 12px; z-index: 20; max-width: calc(100% - 28px); text-align: center; font-weight: 500; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(96px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 12px; z-index: 20; max-width: calc(100% - 28px); text-align: center; font-weight: 500; }
 .toast.error { background: var(--danger); color: #fff; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); opacity: 0; }
 
@@ -290,7 +282,6 @@ textarea { width: 100%; resize: none; border: 1px solid var(--line); border-radi
   .left { flex: 1; }
   .drop { aspect-ratio: 4 / 3; }
   .composer { position: sticky; top: 12px; width: 340px; border: 1px solid var(--line); border-radius: var(--r); box-shadow: none; padding: 14px; }
-  textarea { min-height: 110px; }
   .toast { bottom: 24px; }
 }
 </style>

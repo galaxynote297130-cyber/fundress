@@ -22,29 +22,23 @@ export default defineEventHandler(async (event) => {
   })
   const userId = (sessionUser as any).id as string
 
-  const { veniceApiKey, veniceModel } = useRuntimeConfig(event)
+  const { veniceApiKey, veniceModel, generatePrompt } = useRuntimeConfig(event)
   if (!veniceApiKey) {
     throw createError({ statusCode: 500, statusMessage: 'Clé API absente : ajoute NUXT_VENICE_API_KEY dans le fichier .env puis relance le serveur.' })
   }
 
-  const body = await readBody<{ image?: string; prompt?: string; preset?: string; resolution?: string }>(event)
-  let prompt = (body?.prompt || '').trim()
-  let model = veniceModel || DEFAULT_MODEL
-  let preset: Preset | undefined
-
-  // Bouton en un clic : le serveur choisit le prompt, le modèle et le coût
-  if (body?.preset) {
-    preset = PRESETS[body.preset]
-    if (!preset) throw createError({ statusCode: 400, statusMessage: 'Préréglage inconnu.' })
-    prompt = prompt ? `${preset.prompt} Additional details: ${prompt}` : preset.prompt
-    if (preset.model) model = preset.model
+  // Le navigateur n'envoie que la photo et la qualité.
+  // Le prompt et le modèle viennent uniquement des réglages du serveur (Cloudflare).
+  const body = await readBody<{ image?: string; resolution?: string }>(event)
+  const prompt = String(generatePrompt || '').trim()
+  const model = veniceModel || 'qwen-image-2-edit'
+  if (!prompt) {
+    throw createError({ statusCode: 500, statusMessage: 'Génération non configurée : ajoute la variable NUXT_GENERATE_PROMPT dans Cloudflare.' })
   }
   const image = (body?.image || '').replace(/^data:image\/[\w+.-]+;base64,/, '')
   const resolution = body?.resolution === '2K' ? '2K' : '1K'
-  const cost = creditsFor(preset, resolution)
+  const cost = resolution === '2K' ? 2 : 1
 
-  if (!prompt) throw createError({ statusCode: 400, statusMessage: 'Décris la modification souhaitée.' })
-  if (prompt.length > 2500) throw createError({ statusCode: 400, statusMessage: 'Description trop longue.' })
   if (!image) throw createError({ statusCode: 400, statusMessage: 'Ajoute ta photo.' })
   if (image.length * 0.75 > MAX_BYTES) throw createError({ statusCode: 413, statusMessage: ERREURS[413] })
 

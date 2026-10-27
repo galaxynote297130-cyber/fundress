@@ -9,6 +9,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     veniceApiKey: '',                 // NUXT_VENICE_API_KEY
     veniceModel: 'qwen-image-2-edit', // NUXT_VENICE_MODEL
+    generatePrompt: '',               // NUXT_GENERATE_PROMPT : prompt envoyé à Venice au clic sur « Générer »
     stripeSecretKey: '',              // NUXT_STRIPE_SECRET_KEY
     stripeWebhookSecret: '',          // NUXT_STRIPE_WEBHOOK_SECRET
     // Connexion Google (optionnelle) : NUXT_OAUTH_GOOGLE_CLIENT_ID / NUXT_OAUTH_GOOGLE_CLIENT_SECRET
