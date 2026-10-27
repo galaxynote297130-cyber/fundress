@@ -104,7 +104,7 @@ async function generate() {
 
 /* Au chargement : compte, retour de paiement Stripe, erreurs de connexion Google */
 onMounted(async () => {
-  await refresh().catch(() => {})
+  await refresh().catch((e: any) => notify(`Compte indisponible : ${e?.message || 'erreur serveur'}`, true))
   const q = new URLSearchParams(location.search)
   if (q.get('paiement') === 'ok' && q.get('session_id')) {
     try {

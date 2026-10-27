@@ -20,11 +20,15 @@ export function useAccount() {
   }
 
   async function refresh() {
-    const r = await api<{ user: Me; packs: Pack[]; costs: Record<string, number> }>('/api/me')
-    me.value = r.user
-    packs.value = r.packs
-    costs.value = r.costs
-    loaded.value = true
+    try {
+      const r = await api<{ user: Me; packs: Pack[]; costs: Record<string, number> }>('/api/me')
+      me.value = r.user
+      packs.value = r.packs
+      costs.value = r.costs
+    } finally {
+      // Même en cas d'erreur, on affiche les boutons Connexion / S'inscrire
+      loaded.value = true
+    }
   }
 
   async function login(email: string, password: string) {
