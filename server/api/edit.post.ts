@@ -22,19 +22,17 @@ export default defineEventHandler(async (event) => {
   })
   const userId = (sessionUser as any).id as string
 
-  const { veniceApiKey, veniceModel, generatePrompt } = useRuntimeConfig(event)
+  const { veniceApiKey, veniceModel } = useRuntimeConfig(event)
   if (!veniceApiKey) {
     throw createError({ statusCode: 500, statusMessage: 'Clé API absente : ajoute NUXT_VENICE_API_KEY dans le fichier .env puis relance le serveur.' })
   }
 
-  // Le navigateur n'envoie que la photo et la qualité.
-  // Le prompt et le modèle viennent uniquement des réglages du serveur (Cloudflare).
-  const body = await readBody<{ image?: string }>(event)
-  const prompt = String(generatePrompt || '').trim()
+  // Le navigateur envoie la photo et la description écrite par l'utilisateur.
+  const body = await readBody<{ image?: string; prompt?: string }>(event)
+  const prompt = String(body?.prompt || '').trim()
   const model = veniceModel || 'qwen-image-2-edit'
-  if (!prompt) {
-    throw createError({ statusCode: 500, statusMessage: 'Génération non configurée : ajoute la variable NUXT_GENERATE_PROMPT dans Cloudflare.' })
-  }
+  if (!prompt) throw createError({ statusCode: 400, statusMessage: 'Décris la modification souhaitée.' })
+  if (prompt.length > 1500) throw createError({ statusCode: 400, statusMessage: 'Description trop longue (1500 caractères maximum).' })
   const image = (body?.image || '').replace(/^data:image\/[\w+.-]+;base64,/, '')
   const resolution = '1K'
   const cost = 1

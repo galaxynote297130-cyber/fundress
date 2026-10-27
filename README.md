@@ -44,15 +44,11 @@ En ligne, déclare le webhook dans Stripe : `https://ton-domaine/api/stripe/webh
 2. URI de redirection autorisée : `http://localhost:3000/auth/google` (et `https://ton-domaine/auth/google` en ligne)
 3. Remplis les deux variables Google et mets `NUXT_PUBLIC_GOOGLE_LOGIN=true`
 
-## Le bouton « Générer » (prompt caché)
+## Génération
 
-Le site n'a qu'un bouton : **Générer**. Le navigateur envoie seulement la photo. Le serveur ajoute le prompt et le modèle, puis appelle Venice. Le prompt n'apparaît jamais sur le site, ni dans le navigateur, ni sur GitHub.
+L'utilisateur ajoute sa photo, décrit la modification dans le champ texte, puis clique sur **Générer** (1 crédit). Le serveur envoie la photo et la description à Venice, avec le filtre de contenu activé (`safe_mode: true`).
 
-Il se règle dans Cloudflare : Settings > Variables and Secrets.
-- `NUXT_GENERATE_PROMPT` (type **Secret**) : ton prompt, aussi long que tu veux
-- `NUXT_VENICE_MODEL` : le modèle (`qwen-image-2-edit` par défaut)
-
-Après chaque changement : Deployments > ⋯ > Retry deployment. Coût : 1 crédit par génération.
+Le modèle se règle avec la variable `NUXT_VENICE_MODEL` dans Cloudflare (`qwen-image-2-edit` par défaut).
 
 ## Régler les prix
 
