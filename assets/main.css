@@ -1,0 +1,27 @@
+/* Mobile d'abord : une colonne, barre de génération fixée en bas.
+   À partir de 900px : image à gauche, panneau de contrôle à droite. */
+:root {
+  --bg: #eef0f4; --surface: #ffffff; --sunk: #e3e6ed; --line: #cfd4de;
+  --fg: #161a23; --muted: #5b6274; --accent: #e8a317; --accent-ink: #1b1405;
+  --mask: #7c5cff; --danger: #c7392f;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Figtree", system-ui, -apple-system, sans-serif;
+  --r: 12px;
+  --tap: 44px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12151c; --surface: #1a1e28; --sunk: #0d1016; --line: #2b3140;
+    --fg: #e9ecf2; --muted: #9097a8; --accent: #f2b230; --accent-ink: #1b1405;
+    --mask: #9a80ff; --danger: #ff6b5f;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: var(--bg); color: var(--fg); }
+body { font-family: var(--f-body); font-size: 16px; line-height: 1.45; overscroll-behavior-y: none; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px solid var(--mask); outline-offset: 2px; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
