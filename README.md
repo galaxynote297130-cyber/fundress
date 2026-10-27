@@ -69,22 +69,18 @@ Repère : une génération coûte environ 0,04 $ chez Venice.
 
 ## Mise en ligne sur Cloudflare Pages
 
-Le projet est détecté automatiquement par Cloudflare : aucun fichier de configuration à ajouter.
+Le stockage KV `fundress-db` existe déjà sur le compte Cloudflare. Le fichier `wrangler.toml` le lie au site (nom `DB`) et active la compatibilité `nodejs_compat` : rien à régler pour ça dans le tableau de bord.
 
-1. **Créer le stockage** : Cloudflare > Storage & Databases > KV > Create, nom `fundress-db`.
-2. **Créer le projet** : Workers & Pages > Create > Pages > Connect to Git, puis choisis le dépôt `fundress`.
+1. **Créer le projet** : Workers & Pages > Create > Pages > Connect to Git, puis choisis le dépôt `fundress`.
    - Framework preset : **Nuxt.js**
    - Build command : `npm run build`
    - Build output directory : `dist`
-3. **Variables et secrets** (Settings > Variables and Secrets, en mode *Secret* pour les clés) :
+2. **Variables et secrets** (Settings > Variables and Secrets, en mode *Secret* pour les clés) :
    - `NUXT_VENICE_API_KEY`
    - `NUXT_SESSION_PASSWORD` (32 caractères minimum)
-   - `NUXT_VENICE_MODEL` (optionnel)
-   - `NUXT_STRIPE_SECRET_KEY` et `NUXT_STRIPE_WEBHOOK_SECRET` (si tu utilises Stripe)
    - `NODE_VERSION` = `22`
-4. **Lier le stockage** : Settings > Bindings > Add > KV namespace. Nom de la variable : `DB`, namespace : `fundress-db`.
-5. **Compatibilité** : Settings > Runtime > Compatibility flags, ajoute `nodejs_compat`.
-6. **Redéploie** : Deployments > ⋯ > Retry deployment, pour prendre en compte les étapes 3 à 5.
+   - `NUXT_VENICE_MODEL` (optionnel), `NUXT_STRIPE_SECRET_KEY` et `NUXT_STRIPE_WEBHOOK_SECRET` (si Stripe)
+3. **Redéploie** : Deployments > ⋯ > Retry deployment, pour prendre en compte les secrets.
 
 Ensuite, chaque modification envoyée sur GitHub (branche `main`) met le site à jour automatiquement.
 

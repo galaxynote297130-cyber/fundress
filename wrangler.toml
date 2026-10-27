@@ -1,0 +1,14 @@
+# Configuration Cloudflare Pages pour FUNDRESS.
+# Lie automatiquement le stockage et active la compatibilité Node :
+# rien à régler à la main dans Settings > Bindings ni dans Compatibility flags.
+# Les secrets (clé Venice, etc.) se saisissent toujours dans le tableau de bord Cloudflare.
+
+name = "fundress"
+pages_build_output_dir = "dist"
+compatibility_date = "2024-12-24"
+compatibility_flags = ["nodejs_compat"]
+
+# Comptes, crédits et paiements
+[[kv_namespaces]]
+binding = "DB"
+id = "56ae7a7a34cd40b4b789c1299f45ffdf"
