@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Fenêtre d'achat de crédits (redirige vers la page de paiement Stripe)
-const { me, packs, costs, buyOpen, buy } = useAccount()
+const { me, packs, buyOpen, buy } = useAccount()
 const loading = ref('')
 const error = ref('')
 
@@ -19,7 +19,7 @@ async function choose(id: string) {
     <div class="sheet" role="dialog" aria-labelledby="buy-title">
       <h3 id="buy-title">Recharger des crédits</h3>
       <p class="sub">
-        Solde actuel : <b>{{ me?.credits ?? 0 }} crédits</b> · 1 crédit par image 1K, {{ costs['2K'] }} en 2K
+        Solde actuel : <b>{{ me?.credits ?? 0 }} crédits</b> · 1 crédit par image
       </p>
       <div class="packs">
         <button

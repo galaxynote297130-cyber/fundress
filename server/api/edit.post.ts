@@ -29,15 +29,15 @@ export default defineEventHandler(async (event) => {
 
   // Le navigateur n'envoie que la photo et la qualité.
   // Le prompt et le modèle viennent uniquement des réglages du serveur (Cloudflare).
-  const body = await readBody<{ image?: string; resolution?: string }>(event)
+  const body = await readBody<{ image?: string }>(event)
   const prompt = String(generatePrompt || '').trim()
   const model = veniceModel || 'qwen-image-2-edit'
   if (!prompt) {
     throw createError({ statusCode: 500, statusMessage: 'Génération non configurée : ajoute la variable NUXT_GENERATE_PROMPT dans Cloudflare.' })
   }
   const image = (body?.image || '').replace(/^data:image\/[\w+.-]+;base64,/, '')
-  const resolution = body?.resolution === '2K' ? '2K' : '1K'
-  const cost = resolution === '2K' ? 2 : 1
+  const resolution = '1K'
+  const cost = 1
 
   if (!image) throw createError({ statusCode: 400, statusMessage: 'Ajoute ta photo.' })
   if (image.length * 0.75 > MAX_BYTES) throw createError({ statusCode: 413, statusMessage: ERREURS[413] })

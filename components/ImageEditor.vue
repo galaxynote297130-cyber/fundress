@@ -10,7 +10,6 @@ type Slot = { url: string; data: string; name: string } | null
 const main = ref<Slot>(null)
 const over = ref(false)
 
-const resolution = ref<'1K' | '2K'>('1K')
 const busy = ref(false)
 const message = ref<{ text: string; error?: boolean } | null>(null)
 
@@ -20,15 +19,14 @@ const current = ref(-1)
 const shown = computed(() => results.value[current.value] || null)
 
 
-const mult = computed(() => (resolution.value === '2K' ? 2 : 1))
-const cost = computed(() => mult.value) // texte libre : 1 crédit (2 en 2K)
+const cost = computed(() => 1) // 1 crédit par génération
 const canGenerate = computed(() => !!main.value && !busy.value)
 const goLabel = computed(() => {
   if (busy.value) return 'En cours…'
   if (!main.value) return 'Ajoute une photo'
   if (!me.value) return 'Se connecter pour générer'
   if (me.value.credits < cost.value) return 'Recharger des crédits'
-  return `Générer · ${cost.value} crédit${cost.value > 1 ? 's' : ''}`
+  return 'Générer'
 })
 
 let t: ReturnType<typeof setTimeout> | undefined
@@ -81,7 +79,7 @@ async function generate() {
     const res = await fetch('/api/edit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image: images[0], resolution: resolution.value }),
+      body: JSON.stringify({ image: images[0] }),
     })
     if (!res.ok) {
       const err = await res.json().catch(() => null)
@@ -201,10 +199,6 @@ async function save() {
       <!-- Barre de génération (fixe en bas sur mobile, panneau sur ordinateur) -->
       <aside class="composer">
         <div class="actions">
-          <div class="seg">
-            <button :aria-pressed="resolution === '1K'" @click="resolution = '1K'">1K</button>
-            <button :aria-pressed="resolution === '2K'" @click="resolution = '2K'">2K</button>
-          </div>
           <button class="go" :disabled="!canGenerate" @click="generate()">
             {{ goLabel }}
           </button>
@@ -263,9 +257,6 @@ async function save() {
 
 .ghost { min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-weight: 500; }
 .ghost.small { min-height: 36px; font-size: .88rem; }
-.seg { display: inline-flex; background: var(--sunk); border-radius: 10px; padding: 3px; gap: 3px; }
-.seg button { min-height: 42px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; font-weight: 500; }
-.seg button[aria-pressed="true"] { background: var(--surface); box-shadow: 0 1px 3px rgba(0, 0, 0, .15); }
 
 /* Barre de génération fixée en bas sur mobile */
 .composer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(0, 0, 0, .12); display: flex; flex-direction: column; gap: 8px; padding: 10px max(14px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }

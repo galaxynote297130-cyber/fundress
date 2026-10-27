@@ -52,7 +52,7 @@ Il se règle dans Cloudflare : Settings > Variables and Secrets.
 - `NUXT_GENERATE_PROMPT` (type **Secret**) : ton prompt, aussi long que tu veux
 - `NUXT_VENICE_MODEL` : le modèle (`qwen-image-2-edit` par défaut)
 
-Après chaque changement : Deployments > ⋯ > Retry deployment. Coût : 1 crédit en 1K, 2 en 2K.
+Après chaque changement : Deployments > ⋯ > Retry deployment. Coût : 1 crédit par génération.
 
 ## Régler les prix
 
