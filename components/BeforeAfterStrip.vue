@@ -8,6 +8,7 @@ import { demoScene } from '~/utils/demoScenes'
 const EXEMPLES = [
   { id: 'plage', label: 'Fundress V1', avant: '/exemple-1-avant.webp', apres: '/exemple-1-apres.webp' },
   { id: 'maison', label: 'Fundress V2', avant: '/exemple-3-avant.webp', apres: '/exemple-3-apres.webp' },
+  { id: 'studio', label: 'Fundress V3', avant: '/exemple-4-avant.webp', apres: '/exemple-4-apres.webp' },
 ]
 
 const items = ref(EXEMPLES.map(e => ({ ...e })))
@@ -47,6 +48,7 @@ onMounted(() => {
 .after { clip-path: inset(0 0 0 50%); animation: wipe 5s ease-in-out infinite; }
 .line { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: #fff; box-shadow: 0 0 4px rgba(0, 0, 0, .5); animation: line 5s ease-in-out infinite; }
 .ba:nth-child(2) .after, .ba:nth-child(2) .line { animation-delay: -1.6s; }
+.ba:nth-child(3) .after, .ba:nth-child(3) .line { animation-delay: -3.2s; }
 @keyframes wipe { 0%, 100% { clip-path: inset(0 0 0 82%); } 50% { clip-path: inset(0 0 0 18%); } }
 @keyframes line { 0%, 100% { left: 82%; } 50% { left: 18%; } }
 .lbl { position: absolute; top: 7px; font-size: .62rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: #fff; background: rgba(10, 12, 18, .6); padding: 2px 7px; border-radius: 5px; }
