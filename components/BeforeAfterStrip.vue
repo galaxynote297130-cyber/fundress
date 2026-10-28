@@ -1,61 +1,102 @@
 <script setup lang="ts">
-// Bandeau d'exemples avant / après, présenté en versions du modèle.
-// Les images sont dans public/, à la racine.
-// Si un chemin est vide, une image d'exemple dessinée est utilisée.
-import { ref, onMounted } from 'vue'
+// Bandeau d'exemples avant / après.
+// La première vignette alterne entre V1 et V2 quand le balayage est masqué.
+// La seconde reste fixe, mise en avant en V2.
+import { ref, onMounted, onUnmounted } from 'vue'
 import { demoScene } from '~/utils/demoScenes'
 
+const DUREE = 5000
+const DECALAGE = 1600
+
 const EXEMPLES = [
-  { id: 'plage', label: 'Fundress V1', avant: '/exemple-1-avant.webp', apres: '/exemple-1-apres.webp' },
-  { id: 'maison', label: 'Fundress V2', avant: '/exemple-3-avant.webp', apres: '/exemple-3-apres.webp' },
-  { id: 'studio', label: 'Fundress V3', avant: '/exemple-4-avant.webp.webp', apres: '/exemple-4-apres.webp.webp' },
+  { id: 'plage', avant: '/exemple-1-avant.webp', apres: ['/exemple-1-apres.webp', '/exemple-1-apres-v2.webp'], alt: true, badge: '' },
+  { id: 'studio', avant: '/exemple-4-avant.webp.webp', apres: ['/exemple-4-apres.webp.webp'], alt: false, badge: 'Fundress V2' },
 ]
 
-const items = ref(EXEMPLES.map(e => ({ ...e })))
+type Item = { id: string; avant: string; apres: string[]; alt: boolean; badge: string; v: number }
+const items = ref<Item[]>([])
+const minuteries: any[] = []
+
 onMounted(() => {
   items.value = EXEMPLES.map(e => ({
-    ...e,
+    id: e.id,
     avant: e.avant || demoScene(e.id, false),
-    apres: e.apres || demoScene(e.id, true),
+    apres: e.apres.map(a => a || demoScene(e.id, true)),
+    alt: e.alt,
+    badge: e.badge,
+    v: 0,
   }))
+  items.value.forEach((e, i) => {
+    if (!e.alt) return
+    minuteries.push(setTimeout(() => {
+      minuteries.push(setInterval(() => { e.v = 1 - e.v }, DUREE))
+    }, i * DECALAGE))
+  })
+})
+
+onUnmounted(() => {
+  minuteries.forEach(t => { clearTimeout(t); clearInterval(t) })
 })
 </script>
 
 <template>
   <div class="showcase" aria-label="Exemples avant / après">
+    <div class="head">
+      <span>Avant / après</span>
+      <small>Deux rendus du même modèle</small>
+    </div>
     <div class="row">
       <div v-for="e in items" :key="e.id" class="ba">
-        <div class="frame">
-          <img v-if="e.avant" :src="e.avant" alt="Avant" loading="lazy" decoding="async">
-          <img v-if="e.apres" :src="e.apres" class="after" alt="Après" loading="lazy" decoding="async">
+        <div class="frame" :class="{ highlight: !e.alt }">
+          <img :src="e.avant" alt="Avant" loading="lazy" decoding="async">
+          <div class="after">
+            <template v-if="e.alt">
+              <img :class="{ on: e.v === 0 }" :src="e.apres[0]" alt="" loading="lazy" decoding="async">
+              <img :class="{ on: e.v === 1 }" :src="e.apres[1]" alt="" loading="lazy" decoding="async">
+            </template>
+            <img v-else :src="e.apres[0]" alt="Après" loading="lazy" decoding="async">
+          </div>
+          <span class="glow" />
           <span class="line" />
           <span class="lbl l">Avant</span>
           <span class="lbl r">Après</span>
+          <span v-if="e.alt" class="ver small">Fundress V{{ e.v + 1 }}</span>
+          <span v-else class="ver">{{ e.badge }}</span>
         </div>
-        <small>{{ e.label }}</small>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.showcase { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 12px; display: flex; flex-direction: column; gap: 10px; }
+.showcase { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 10px; }
+.head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.head span { font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; font-weight: 700; color: var(--accent); }
+.head small { font-size: .7rem; color: var(--muted); }
 .row { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .row::-webkit-scrollbar { display: none; }
-.ba { flex: 0 0 230px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.frame { position: relative; aspect-ratio: 3 / 4; border-radius: 10px; overflow: hidden; background: var(--sunk); }
-.frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.after { clip-path: inset(0 0 0 50%); animation: wipe 5s ease-in-out infinite; }
+.ba { flex: 0 0 260px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.frame { position: relative; aspect-ratio: 3 / 4; border-radius: 12px; overflow: hidden; background: var(--sunk); }
+.frame.highlight { box-shadow: 0 0 0 2px var(--accent); }
+.frame > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
+.after { position: absolute; inset: 0; clip-path: inset(0 0 0 50%); animation: wipe 5s ease-in-out infinite; }
+.after img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
+.after img:not(:only-child) { opacity: 0; transition: opacity .3s ease; }
+.after img.on { opacity: 1; }
+.glow { position: absolute; top: 0; bottom: 0; left: 50%; width: 34px; margin-left: -17px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .28), transparent); filter: blur(7px); animation: line 5s ease-in-out infinite; pointer-events: none; }
 .line { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: #fff; box-shadow: 0 0 4px rgba(0, 0, 0, .5); animation: line 5s ease-in-out infinite; }
-.ba:nth-child(2) .after, .ba:nth-child(2) .line { animation-delay: -1.6s; }
-.ba:nth-child(3) .after, .ba:nth-child(3) .line { animation-delay: -3.2s; }
+.ba:nth-child(2) .after, .ba:nth-child(2) .line, .ba:nth-child(2) .glow { animation-delay: -1.6s; }
 @keyframes wipe { 0%, 100% { clip-path: inset(0 0 0 82%); } 50% { clip-path: inset(0 0 0 18%); } }
 @keyframes line { 0%, 100% { left: 82%; } 50% { left: 18%; } }
-.lbl { position: absolute; top: 7px; font-size: .62rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: #fff; background: rgba(10, 12, 18, .6); padding: 2px 7px; border-radius: 5px; }
-.lbl.l { left: 7px; }
-.lbl.r { right: 7px; }
-small { font-size: .78rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lbl { position: absolute; top: 8px; font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #fff; background: rgba(10, 12, 18, .65); padding: 3px 8px; border-radius: 6px; backdrop-filter: blur(4px); }
+.lbl.l { left: 8px; }
+.lbl.r { right: 8px; }
+.ver { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); font-size: .66rem; font-weight: 800; letter-spacing: .04em; color: var(--accent-ink); background: var(--accent); padding: 4px 12px; border-radius: 99px; white-space: nowrap; }
+.ver.small { font-size: .6rem; padding: 3px 9px; }
 @media (min-width: 900px) {
-  .ba { flex: 1 1 0; max-width: 320px; }
+  .ba { flex: 1 1 0; max-width: 300px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .after, .line, .glow { animation: none; }
 }
 </style>
