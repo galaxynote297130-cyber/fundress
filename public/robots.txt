@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://fundress.pages.dev/sitemap.xml
