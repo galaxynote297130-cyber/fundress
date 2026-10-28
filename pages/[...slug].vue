@@ -12,7 +12,7 @@ const META: Record<string, { title: string; desc: string }> = {
   },
   confidentialite: {
     title: 'Confidentialité — Fundress',
-    desc: "Ce que Fundress fait de tes photos : suppression sous 24 h, aucune revente.",
+    desc: "Ce que Fundress fait de tes photos : suppression après usage, aucune revente.",
   },
 }
 
@@ -21,7 +21,7 @@ if (!isHome && !META[slug]) {
 }
 
 const HOME_TITLE = "Fundress — AI Undress · Déshabille n'importe quelle photo"
-const HOME_DESC = "Déshabille n'importe quelle photo avec l'IA. Envoie une photo, choisis une tenue, télécharge. Contenu adulte 18+, résultat en quelques secondes."
+const HOME_DESC = "Déshabille n'importe quelle photo avec l'IA. Envoie une photo, choisis un modèle, télécharge. Contenu adulte 18+, résultat en quelques secondes."
 
 useHead({
   title: isHome ? HOME_TITLE : META[slug]!.title,
@@ -51,16 +51,16 @@ useHead({
 
     <template v-if="slug === 'cgu'">
       <h1>Conditions générales d'utilisation</h1>
-      <p class="maj">Dernière mise à jour : à compléter.</p>
+      <p class="maj">Dernière mise à jour : 28 octobre 2026.</p>
 
       <h2>1. Objet</h2>
-      <p>Fundress est un service en ligne qui modifie des photographies à l'aide de modèles d'intelligence artificielle, notamment pour retirer ou changer des vêtements. Le service est édité par [nom], joignable à [email].</p>
+      <p>Fundress est un service en ligne qui modifie des photographies à l'aide de modèles d'intelligence artificielle, notamment pour retirer ou changer des vêtements.</p>
 
       <h2>2. Accès et compte</h2>
       <p>L'usage du service est réservé aux personnes de 18 ans et plus. Un compte est nécessaire pour générer des images. Tu es responsable de la confidentialité de ton mot de passe.</p>
 
       <h2>3. Crédits et paiement</h2>
-      <p>Les générations sont décomptées en crédits. Cinq crédits sont offerts à l'inscription. Les packs sont payés à l'unité via Stripe et n'expirent pas. Un crédit est débité au lancement d'une génération et remboursé si elle échoue.</p>
+      <p>Les générations sont décomptées en crédits. Un crédit est offert à l'inscription. Les packs sont payés à l'unité via Stripe et n'expirent pas. Un crédit est débité au lancement d'une génération et remboursé si elle échoue.</p>
 
       <h2>4. Droit de rétractation</h2>
       <p>Pour les consommateurs de l'Union européenne : en achetant un pack et en l'utilisant immédiatement, tu reconnais que le service est fourni sans attendre la fin du délai de rétractation de 14 jours. Les crédits déjà consommés ne sont pas remboursables ; les crédits non consommés peuvent l'être sur demande.</p>
@@ -83,7 +83,7 @@ useHead({
 
     <template v-else>
       <h1>Confidentialité</h1>
-      <p class="maj">Dernière mise à jour : à compléter.</p>
+      <p class="maj">Dernière mise à jour : 28 octobre 2026.</p>
 
       <h2>Ce que nous faisons de tes photos</h2>
       <p>Ta photo est transmise au fournisseur du modèle uniquement pour produire le résultat. Elle n'est pas revendue et n'est pas publiée sans ton accord.</p>
@@ -99,7 +99,7 @@ useHead({
       <p>Un seul cookie est utilisé : celui de session, qui te garde connecté.</p>
 
       <h2>Tes droits</h2>
-      <p>Tu peux demander l'accès, la rectification ou la suppression de ton compte à [email].</p>
+      <p>Tu peux demander l'accès, la rectification ou la suppression de ton compte sur simple demande.</p>
     </template>
 
     <SiteFooter />
