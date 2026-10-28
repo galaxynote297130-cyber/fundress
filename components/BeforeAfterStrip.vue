@@ -49,10 +49,10 @@ onMounted(() => {
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
 }
-.row { display: flex; gap: 12px; width: max-content; padding: 0 6px; animation: slide 30s linear infinite; }
+.row { display: flex; align-items: flex-start; gap: 12px; width: max-content; padding: 0 6px; animation: slide 30s linear infinite; }
 .marquee:hover .row { animation-play-state: paused; }
-.ba { flex: 0 0 230px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.frame { position: relative; height: 300px; border-radius: 10px; overflow: hidden; background: var(--sunk); }
+.ba { flex: 0 0 200px; width: 200px; display: flex; flex-direction: column; gap: 6px; }
+.frame { position: relative; width: 200px; height: 267px; border-radius: 10px; overflow: hidden; background: var(--sunk); }
 .frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 .after { clip-path: inset(0 0 0 50%); animation: wipe 5s ease-in-out infinite; }
 .line { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: #fff; box-shadow: 0 0 4px rgba(0, 0, 0, .5); animation: line 5s ease-in-out infinite; }
