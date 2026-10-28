@@ -12,6 +12,7 @@ const busy = ref(false)
 const message = ref<{ text: string; error?: boolean } | null>(null)
 const ageOk = ref(true)
 const buying = ref('')
+const fileInput = ref<HTMLInputElement | null>(null)
 
 type Result = { url: string; label: string }
 const results = ref<Result[]>([])
@@ -23,6 +24,10 @@ const chosen = ref(DEFAULT_MODE)
 
 function choose(id: string) {
   chosen.value = id
+}
+
+function pick() {
+  fileInput.value?.click()
 }
 
 const euro = (cents: number) => (cents / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })
@@ -185,13 +190,22 @@ async function save() {
 
     <main class="layout">
       <section class="left">
-        <div class="hero">
-          <span class="hero-tag">Rendu photoréaliste</span>
-          <h1>Des photos déshabillées <em>qui ne se voient pas.</em></h1>
-          <p>Même pose, même décor, même lumière. Seul le vêtement disparaît.</p>
-          <div class="hero-cta">
-            <button class="primary" @click="tryExample">Essayer avec une photo d’exemple</button>
-            <span>2 images offertes à l’inscription</span>
+        <div class="banner">
+          <div class="banner-media" aria-hidden="true">
+            <img src="/exemple-4-avant.webp.webp" alt="">
+            <img class="after" src="/exemple-4-apres.webp.webp" alt="">
+            <span class="swipe" />
+          </div>
+          <div class="banner-body">
+            <span class="tag-line">Rendu photoréaliste</span>
+            <h1>Ta photo, modifiée en quelques secondes.</h1>
+            <h2>Une photo, plusieurs versions.</h2>
+            <p>Choisis le rendu qui te plaît, le reste ne bouge pas.</p>
+            <div class="cta">
+              <button class="primary" @click="pick">Modifier ma photo</button>
+              <button class="link" @click="tryExample">Voir un exemple</button>
+            </div>
+            <span class="offer">2 crédits offerts à l’inscription</span>
           </div>
         </div>
 
@@ -208,7 +222,7 @@ async function save() {
             class="drop" :class="{ filled: main, over }"
             @dragover.prevent="over = true" @dragleave="over = false" @drop.prevent="onDrop"
           >
-            <input type="file" accept="image/*" class="sr" @change="onPick">
+            <input ref="fileInput" type="file" accept="image/*" class="sr" @change="onPick">
             <img v-if="main" :src="main.url" alt="Ta photo">
             <span v-else class="empty">
               <span class="badge">1</span>
@@ -298,114 +312,4 @@ async function save() {
         </div>
 
         <div class="actions">
-          <button class="go" :disabled="!canGenerate" @click="generate()">
-            {{ goLabel }}
-          </button>
-        </div>
-      </aside>
-    </main>
-
-    <AuthModal />
-    <CreditsModal />
-    <div v-if="message" class="toast" :class="{ error: message.error }" role="status">{{ message.text }}</div>
-  </div>
-</template>
-
-<style scoped>
-.app { min-height: 100dvh; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); }
-.top { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px max(14px, env(safe-area-inset-right, 0px)) 8px max(14px, env(safe-area-inset-left, 0px)); }
-.logo { font-family: var(--f-display); font-weight: 800; font-size: 1.2rem; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; }
-.logo i { width: 20px; height: 20px; border-radius: 6px; background: conic-gradient(from 200deg, var(--mask), var(--accent), var(--mask)); }
-.kicker { font-family: var(--f-body); font-size: .62rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 99px; padding: 2px 7px; }
-
-.gate { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 10px max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left)); background: var(--fg); color: var(--bg); font-size: .82rem; }
-.gate b { background: var(--accent); color: var(--accent-ink); border-radius: 6px; padding: 2px 7px; margin-right: 4px; font-size: .74rem; }
-.gate button { border: 0; border-radius: 99px; min-height: 32px; padding: 0 14px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: .82rem; }
-
-.layout { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 0 max(14px, env(safe-area-inset-right, 0px)) calc(210px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
-.left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-
-.hero { display: flex; flex-direction: column; gap: 8px; }
-.hero-tag { align-self: flex-start; font-size: .64rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-ink); background: var(--accent); border-radius: 99px; padding: 3px 10px; }
-.hero h1 { font-family: var(--f-display); font-size: clamp(1.5rem, 5.4vw, 2.1rem); line-height: 1.06; letter-spacing: -.03em; margin: 0; }
-.hero h1 em { font-style: normal; color: var(--accent); }
-.hero p { margin: 0; font-size: .88rem; color: var(--muted); line-height: 1.4; }
-.hero-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 4px; }
-.hero-cta span { font-size: .74rem; color: var(--muted); }
-.primary { min-height: 46px; padding: 0 18px; border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: .92rem; }
-
-.privacy { display: flex; flex-wrap: wrap; gap: 6px; font-size: .72rem; color: var(--muted); }
-.privacy span { display: inline-flex; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 99px; padding: 5px 10px; }
-.privacy span::before { content: "✓"; color: #22c55e; font-weight: 800; margin-right: 5px; }
-
-.drops { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.drop { position: relative; flex: 1; aspect-ratio: 3 / 4; border: 2px dashed var(--line); border-radius: var(--r); background: var(--surface); display: grid; place-items: center; overflow: hidden; cursor: pointer; transition: border-color .15s, background .15s; }
-.drop:hover, .drop.over { border-color: var(--mask); background: color-mix(in srgb, var(--mask) 8%, var(--surface)); }
-.drop:focus-within { outline: 2px solid var(--mask); outline-offset: 2px; }
-.drop.filled { border-style: solid; border-color: var(--line); background: var(--sunk); }
-.drop.out, .drop.out:hover { cursor: default; border-style: solid; border-color: var(--line); background: var(--sunk); }
-.drop.out.done { border-color: var(--accent); }
-.drop.out .badge { background: var(--surface); color: var(--muted); }
-.after-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-.drop img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
-.empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 12px; }
-.badge { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 1.3rem; background: var(--accent); color: var(--accent-ink); }
-.empty strong { font-family: var(--f-display); font-size: 1.05rem; line-height: 1.2; margin-top: 4px; }
-.empty small { color: var(--muted); font-size: .8rem; line-height: 1.3; }
-.tag { position: absolute; left: 8px; bottom: 8px; right: 8px; background: rgba(10, 12, 18, .7); color: #fff; font-size: .75rem; padding: 4px 8px; border-radius: 8px; text-align: center; backdrop-filter: blur(4px); }
-
-.busy { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--sunk) 55%, transparent); backdrop-filter: blur(3px); }
-.busy span { background: var(--surface); border: 1px solid var(--line); padding: 10px 16px; border-radius: 99px; display: flex; gap: 8px; align-items: center; font-weight: 500; }
-.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); animation: pulse 1s infinite; }
-@keyframes pulse { 50% { opacity: .25; } }
-
-.strip { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; }
-.thumb { flex: 0 0 auto; width: 84px; border: 0; padding: 0; background: none; text-align: left; scroll-snap-align: start; display: flex; flex-direction: column; gap: 3px; }
-.thumb img { width: 84px; height: 84px; object-fit: cover; border-radius: 8px; border: 2px solid transparent; }
-.thumb.on img { border-color: var(--accent); }
-.thumb small { font-size: .7rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-.perks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.perk { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; }
-.perk b { font-family: var(--f-display); font-size: .82rem; line-height: 1.2; }
-.perk span { font-size: .72rem; color: var(--muted); line-height: 1.3; }
-
-.pricing { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
-.pricing-head { display: flex; flex-direction: column; gap: 2px; }
-.pricing-head b { font-family: var(--f-display); font-size: 1rem; }
-.pricing-head span { font-size: .76rem; color: var(--muted); }
-.packs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.pack { position: relative; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 16px 6px 11px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
-.pack.best { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
-.pack b { font-family: var(--f-display); font-size: 1.6rem; line-height: 1; }
-.unit { font-size: .74rem; color: var(--muted); margin-bottom: 5px; }
-.pack strong { font-size: .95rem; }
-.pack small { font-size: .68rem; color: var(--muted); }
-.flag { position: absolute; top: -9px; background: var(--accent); color: var(--accent-ink); font-size: .62rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
-.wait { font-size: .66rem; color: var(--muted); margin-top: 3px; }
-.secure { margin: 0; text-align: center; font-size: .72rem; color: var(--muted); }
-
-.ghost { min-height: 44px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-weight: 500; font-size: .85rem; }
-.ghost:disabled { opacity: .45; }
-
-.composer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(0, 0, 0, .12); display: flex; flex-direction: column; gap: 10px; padding: 12px max(14px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
-.composer-title { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
-.presets { display: flex; flex-wrap: wrap; gap: 6px; }
-.preset { flex: 1 1 auto; border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 99px; min-height: 42px; padding: 0 12px; font-size: .85rem; font-weight: 500; }
-.preset.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
-
-.actions { display: flex; gap: 8px; align-items: center; }
-.go { flex: 1; min-height: 48px; border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 1.05rem; }
-.go:disabled { opacity: .5; }
-
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(230px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 12px; z-index: 20; max-width: calc(100% - 28px); text-align: center; font-weight: 500; }
-.toast.error { background: var(--danger); color: #fff; }
-.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); opacity: 0; }
-
-@media (min-width: 900px) {
-  .layout { flex-direction: row; align-items: flex-start; max-width: 1200px; width: 100%; margin: 0 auto; padding-bottom: 24px; }
-  .left { flex: 1; }
-  .composer { position: sticky; top: 12px; width: 340px; border: 1px solid var(--line); border-radius: var(--r); box-shadow: none; padding: 14px; }
-  .toast { bottom: 24px; }
-}
-</style>
+          <button class="go" :disabled="!canGenerate
