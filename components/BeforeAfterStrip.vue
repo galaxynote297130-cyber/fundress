@@ -2,7 +2,6 @@
 // Bandeau d'exemples avant / après.
 // La première vignette alterne entre V1 et V2 quand le balayage est masqué.
 // La seconde reste fixe, mise en avant en V2.
-// L'alternance ne s'active que si la seconde image existe vraiment.
 import { ref, onMounted, onUnmounted } from 'vue'
 import { demoScene } from '~/utils/demoScenes'
 
@@ -10,7 +9,7 @@ const DUREE = 5000
 const DECALAGE = 1600
 
 const EXEMPLES = [
-  { id: 'plage', avant: '/exemple-1-avant.webp', apres: ['/exemple-1-apres.webp', '/exemple-1-apres-v2.webp'], alt: true, badge: '' },
+  { id: 'plage', avant: '/exemple-1-avant.webp', apres: ['/exemple-1-apres.webp', '/exemple-3-apres.webp'], alt: true, badge: '' },
   { id: 'studio', avant: '/exemple-4-avant.webp.webp', apres: ['/exemple-4-apres.webp.webp'], alt: false, badge: 'Fundress V2' },
 ]
 
@@ -18,16 +17,7 @@ type Item = { id: string; avant: string; apres: string[]; alt: boolean; badge: s
 const items = ref<Item[]>([])
 const minuteries: any[] = []
 
-function precharge(src: string) {
-  return new Promise<boolean>(resolve => {
-    const img = new Image()
-    img.onload = () => resolve(true)
-    img.onerror = () => resolve(false)
-    img.src = src
-  })
-}
-
-onMounted(async () => {
+onMounted(() => {
   items.value = EXEMPLES.map(e => ({
     id: e.id,
     avant: e.avant || demoScene(e.id, false),
@@ -36,15 +26,12 @@ onMounted(async () => {
     badge: e.badge,
     v: 0,
   }))
-
-  for (const e of items.value) {
-    if (!e.alt) continue
-    if (!(await precharge(e.apres[1]))) { e.alt = false; continue }
-    const i = items.value.indexOf(e)
+  items.value.forEach((e, i) => {
+    if (!e.alt) return
     minuteries.push(setTimeout(() => {
       minuteries.push(setInterval(() => { e.v = 1 - e.v }, DUREE))
     }, i * DECALAGE))
-  }
+  })
 })
 
 onUnmounted(() => {
@@ -88,4 +75,28 @@ onUnmounted(() => {
 .head small { font-size: .7rem; color: var(--muted); }
 .row { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .row::-webkit-scrollbar { display: none; }
-.ba { flex: 0 0 260px; scroll-snap-align: start;
+.ba { flex: 0 0 260px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.frame { position: relative; aspect-ratio: 3 / 4; border-radius: 12px; overflow: hidden; background: var(--sunk); }
+.frame.highlight { box-shadow: 0 0 0 2px var(--accent); }
+.frame > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
+.after { position: absolute; inset: 0; clip-path: inset(0 0 0 50%); animation: wipe 5s ease-in-out infinite; }
+.after img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
+.after img:not(:only-child) { opacity: 0; transition: opacity .3s ease; }
+.after img.on { opacity: 1; }
+.glow { position: absolute; top: 0; bottom: 0; left: 50%; width: 34px; margin-left: -17px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .28), transparent); filter: blur(7px); animation: line 5s ease-in-out infinite; pointer-events: none; }
+.line { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: #fff; box-shadow: 0 0 4px rgba(0, 0, 0, .5); animation: line 5s ease-in-out infinite; }
+.ba:nth-child(2) .after, .ba:nth-child(2) .line, .ba:nth-child(2) .glow { animation-delay: -1.6s; }
+@keyframes wipe { 0%, 100% { clip-path: inset(0 0 0 82%); } 50% { clip-path: inset(0 0 0 0); } }
+@keyframes line { 0%, 100% { left: 82%; } 50% { left: 100%; } }
+.lbl { position: absolute; top: 8px; font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #fff; background: rgba(10, 12, 18, .65); padding: 3px 8px; border-radius: 6px; backdrop-filter: blur(4px); }
+.lbl.l { left: 8px; }
+.lbl.r { right: 8px; }
+.ver { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); font-size: .66rem; font-weight: 800; letter-spacing: .04em; color: var(--accent-ink); background: var(--accent); padding: 4px 12px; border-radius: 99px; white-space: nowrap; }
+.ver.small { font-size: .6rem; padding: 3px 9px; }
+@media (min-width: 900px) {
+  .ba { flex: 1 1 0; max-width: 300px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .after, .line, .glow { animation: none; }
+}
+</style>
