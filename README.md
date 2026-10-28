@@ -1,3 +1,4 @@
+
 # FUNDRESS
 
 Retouche de photos par IA, pensée pour le mobile. À gauche **ta photo**, à droite **le résultat**. On décrit le changement (une tenue, un décor, un style), l'app appelle l'API Venice et débite des crédits.
