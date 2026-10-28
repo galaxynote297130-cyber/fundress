@@ -190,24 +190,7 @@ async function save() {
 
     <main class="layout">
       <section class="left">
-        <div class="banner">
-          <div class="banner-media" aria-hidden="true">
-            <img src="/exemple-4-avant.webp.webp" alt="">
-            <img class="after" src="/exemple-4-apres.webp.webp" alt="">
-            <span class="swipe" />
-          </div>
-          <div class="banner-body">
-            <span class="tag-line">Rendu photoréaliste</span>
-            <h1>Ta photo, modifiée en quelques secondes.</h1>
-            <h2>Une photo, plusieurs versions.</h2>
-            <p>Choisis le rendu qui te plaît, le reste ne bouge pas.</p>
-            <div class="cta">
-              <button class="primary" @click="pick">Modifier ma photo</button>
-              <button class="link" @click="tryExample">Voir un exemple</button>
-            </div>
-            <span class="offer">2 crédits offerts à l’inscription</span>
-          </div>
-        </div>
+        <HeroBanner @pick="pick" @example="tryExample" />
 
         <BeforeAfterStrip />
 
@@ -339,26 +322,6 @@ async function save() {
 .layout { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 0 max(14px, env(safe-area-inset-right, 0px)) calc(210px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
 .left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 
-.banner { position: relative; overflow: hidden; border-radius: 16px; border: 1px solid var(--line); background: #12141a; min-height: 230px; display: flex; align-items: flex-end; padding: 16px; }
-.banner-media { position: absolute; top: 0; right: 0; bottom: 0; width: 60%; overflow: hidden; }
-.banner-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 22%; }
-.banner-media .after { clip-path: inset(0 0 0 50%); animation: balayage 6s ease-in-out infinite; }
-.swipe { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: #fff; opacity: .8; animation: curseur 6s ease-in-out infinite; }
-.banner::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, #12141a 32%, rgba(18, 20, 26, .88) 52%, rgba(18, 20, 26, .18) 84%); z-index: 1; }
-.banner::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 95% at 0% 100%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 62%); z-index: 1; }
-.banner-body { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 7px; max-width: 60%; }
-.tag-line { align-self: flex-start; font-size: .62rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-ink); background: var(--accent); border-radius: 99px; padding: 3px 10px; }
-.banner h1 { font-family: var(--f-display); font-size: clamp(1.3rem, 4.6vw, 1.85rem); line-height: 1.08; letter-spacing: -.03em; margin: 0; }
-.banner h2 { font-family: var(--f-display); font-size: clamp(.95rem, 3.2vw, 1.15rem); line-height: 1.15; letter-spacing: -.02em; margin: 0; color: var(--accent); }
-.banner p { margin: 0; font-size: .84rem; color: var(--muted); line-height: 1.4; }
-.cta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 3px; }
-.primary { min-height: 44px; padding: 0 18px; border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: .9rem; }
-.link { min-height: 44px; padding: 0 4px; border: 0; background: none; color: var(--fg); font-weight: 600; font-size: .84rem; text-decoration: underline; text-underline-offset: 3px; }
-.offer { font-size: .72rem; color: var(--muted); }
-
-@keyframes balayage { 0%, 100% { clip-path: inset(0 0 0 84%); } 50% { clip-path: inset(0 0 0 16%); } }
-@keyframes curseur { 0%, 100% { left: 84%; } 50% { left: 16%; } }
-
 .privacy { display: flex; flex-wrap: wrap; gap: 6px; font-size: .72rem; color: var(--muted); }
 .privacy span { display: inline-flex; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 99px; padding: 5px 10px; }
 .privacy span::before { content: "✓"; color: #22c55e; font-weight: 800; margin-right: 5px; }
@@ -426,18 +389,6 @@ async function save() {
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(230px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 12px; z-index: 20; max-width: calc(100% - 28px); text-align: center; font-weight: 500; }
 .toast.error { background: var(--danger); color: #fff; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); opacity: 0; }
-
-@media (max-width: 640px) {
-  .banner { min-height: 270px; }
-  .banner-media { width: 100%; }
-  .banner-media img { object-position: center 16%; }
-  .banner::before { background: linear-gradient(180deg, rgba(18, 20, 26, .3), rgba(18, 20, 26, .9) 58%, #12141a 92%); }
-  .banner-body { max-width: 100%; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .banner-media .after, .swipe { animation: none; }
-}
 
 @media (min-width: 900px) {
   .layout { flex-direction: row; align-items: flex-start; max-width: 1200px; width: 100%; margin: 0 auto; padding-bottom: 24px; }
