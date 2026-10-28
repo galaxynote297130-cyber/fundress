@@ -191,10 +191,10 @@ async function save() {
           </div>
         </div>
 
-        <div v-if="shown && !busy" class="after-bar">
-          <button class="ghost" @click="reuse">Retoucher ce résultat</button>
-          <button class="ghost" @click="save">Enregistrer</button>
-          <button class="ghost" @click="generate">Régénérer</button>
+        <div class="after-bar">
+          <button class="ghost" :disabled="!shown || busy" @click="save">Télécharger</button>
+          <button class="ghost" :disabled="!shown || busy" @click="reuse">Retoucher</button>
+          <button class="ghost" :disabled="!shown || busy" @click="generate">Régénérer</button>
         </div>
 
         <div v-if="results.length > 1" class="strip">
@@ -204,6 +204,21 @@ async function save() {
           >
             <img :src="r.url" alt=""><small>{{ r.label }}</small>
           </button>
+        </div>
+
+        <div class="perks">
+          <div class="perk">
+            <b>Rendu réaliste</b>
+            <span>Pose, décor et lumière conservés</span>
+          </div>
+          <div class="perk">
+            <b>1 crédit par image</b>
+            <span>Pas d'abonnement, les crédits ne périment pas</span>
+          </div>
+          <div class="perk">
+            <b>Prêt en quelques secondes</b>
+            <span>Deux modèles au choix, résultat immédiat</span>
+          </div>
         </div>
 
         <div class="privacy">
@@ -264,8 +279,8 @@ async function save() {
 .drop.out, .drop.out:hover { cursor: default; border-style: solid; border-color: var(--line); background: var(--sunk); }
 .drop.out.done { border-color: var(--accent); }
 .drop.out .badge { background: var(--surface); color: var(--muted); }
-.after-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.drop img { width: 100%; height: 100%; object-fit: contain; }
+.after-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.drop img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
 .empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 12px; }
 .badge { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 1.3rem; background: var(--accent); color: var(--accent-ink); }
 .empty strong { font-family: var(--f-display); font-size: 1.05rem; line-height: 1.2; margin-top: 4px; }
@@ -283,10 +298,16 @@ async function save() {
 .thumb.on img { border-color: var(--accent); }
 .thumb small { font-size: .7rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+.perks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.perk { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; }
+.perk b { font-family: var(--f-display); font-size: .82rem; line-height: 1.2; }
+.perk span { font-size: .72rem; color: var(--muted); line-height: 1.3; }
+
 .privacy { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .74rem; color: var(--muted); }
 .privacy span::before { content: "✓"; color: #22c55e; font-weight: 800; margin-right: 5px; }
 
-.ghost { min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-weight: 500; font-size: .9rem; }
+.ghost { min-height: 44px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-weight: 500; font-size: .85rem; }
+.ghost:disabled { opacity: .45; }
 
 .composer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(0, 0, 0, .12); display: flex; flex-direction: column; gap: 10px; padding: 12px max(14px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
 .composer-title { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
@@ -296,6 +317,7 @@ async function save() {
 
 .actions { display: flex; gap: 8px; align-items: center; }
 .go { flex: 1; min-height: 48px; border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 1.05rem; }
+.go:disabled { opacity: .5; }
 
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(230px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 12px; z-index: 20; max-width: calc(100% - 28px); text-align: center; font-weight: 500; }
 .toast.error { background: var(--danger); color: #fff; }
@@ -304,7 +326,6 @@ async function save() {
 @media (min-width: 900px) {
   .layout { flex-direction: row; align-items: flex-start; max-width: 1200px; width: 100%; margin: 0 auto; padding-bottom: 24px; }
   .left { flex: 1; }
-  .drop { aspect-ratio: 4 / 3; }
   .composer { position: sticky; top: 12px; width: 340px; border: 1px solid var(--line); border-radius: var(--r); box-shadow: none; padding: 14px; }
   .toast { bottom: 24px; }
 }
