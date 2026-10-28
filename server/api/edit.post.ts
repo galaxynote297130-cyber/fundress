@@ -1,4 +1,5 @@
 import { buildPrompt, findMode } from '~/utils/presets'
+import { findPose } from '~/utils/poses'
 
 const VENICE_URL = 'https://api.venice.ai/api/v1/image/edit'
 const MAX_BYTES = 24 * 1024 * 1024
@@ -26,14 +27,15 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: 'Le service est momentanément indisponible.' })
   }
 
-  const body = await readBody<{ image?: string; mode?: string }>(event)
+  const body = await readBody<{ image?: string; mode?: string; pose?: string }>(event)
   const mode = findMode(body?.mode)
-  const prompt = buildPrompt(body?.mode)
+  const pose = findPose(body?.pose)
+  const prompt = [buildPrompt(body?.mode), pose?.prompt].filter(Boolean).join(' ').trim()
   const model = mode?.model || veniceModel || 'qwen-image-2-edit'
 
   if (!prompt) throw createError({ statusCode: 400, statusMessage: 'Choisis un modèle.' })
 
-  const image = (body?.image || '').replace(/^data:image\/[\w+.-]+;base64,/, '')
+  const image = (body?.image || '').replace(/^data:image\/[\w.+-]+;base64,/, '')
   const cost = 1
 
   if (!image) throw createError({ statusCode: 400, statusMessage: 'Ajoute ta photo.' })
