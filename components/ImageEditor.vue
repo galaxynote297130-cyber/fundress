@@ -265,7 +265,7 @@ async function save() {
 .drop.out.done { border-color: var(--accent); }
 .drop.out .badge { background: var(--surface); color: var(--muted); }
 .after-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.drop img { width: 100%; height: 100%; object-fit: cover; }
+.drop img { width: 100%; height: 100%; object-fit: contain; }
 .empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 12px; }
 .badge { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 1.3rem; background: var(--accent); color: var(--accent-ink); }
 .empty strong { font-family: var(--f-display); font-size: 1.05rem; line-height: 1.2; margin-top: 4px; }
