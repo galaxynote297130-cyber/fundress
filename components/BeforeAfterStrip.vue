@@ -56,7 +56,6 @@ onUnmounted(() => {
             </template>
             <img v-else :src="e.apres[0]" alt="Après" loading="lazy" decoding="async">
           </div>
-          <span class="glow" />
           <span class="line" />
           <span class="lbl l">Avant</span>
           <span class="lbl r">Après</span>
@@ -83,9 +82,8 @@ onUnmounted(() => {
 .after img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
 .after img:not(:only-child) { opacity: 0; transition: opacity .3s ease; }
 .after img.on { opacity: 1; }
-.glow { position: absolute; top: 0; bottom: 0; left: 50%; width: 34px; margin-left: -17px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .28), transparent); filter: blur(7px); animation: line 5s ease-in-out infinite; pointer-events: none; }
 .line { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: #fff; box-shadow: 0 0 4px rgba(0, 0, 0, .5); animation: line 5s ease-in-out infinite; }
-.ba:nth-child(2) .after, .ba:nth-child(2) .line, .ba:nth-child(2) .glow { animation-delay: -1.6s; }
+.ba:nth-child(2) .after, .ba:nth-child(2) .line { animation-delay: -1.6s; }
 @keyframes wipe { 0%, 100% { clip-path: inset(0 0 0 82%); } 50% { clip-path: inset(0 0 0 0); } }
 @keyframes line { 0%, 100% { left: 82%; } 50% { left: 100%; } }
 .lbl { position: absolute; top: 8px; font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #fff; background: rgba(10, 12, 18, .65); padding: 3px 8px; border-radius: 6px; backdrop-filter: blur(4px); }
@@ -97,6 +95,6 @@ onUnmounted(() => {
   .ba { flex: 1 1 0; max-width: 300px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .after, .line, .glow { animation: none; }
+  .after, .line { animation: none; }
 }
 </style>
