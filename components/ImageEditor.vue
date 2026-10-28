@@ -21,15 +21,11 @@ const presets = PRESETS
 const chosen = ref(DEFAULT_PRESET)
 
 function choose(id: string) {
-  chosen.value = chosen.value === id ? '' : id
-  prompt.value = ''
+  chosen.value = id
 }
 
 const cost = 1
-const prompt = ref('')
-const canGenerate = computed(() =>
-  !!main.value && (!!chosen.value || prompt.value.trim().length > 0) && !busy.value
-)
+const canGenerate = computed(() => !!main.value && !!chosen.value && !busy.value)
 const goLabel = computed(() => {
   if (busy.value) return 'En cours…'
   if (!main.value) return 'Ajoute une photo'
@@ -78,7 +74,7 @@ function onDrop(e: DragEvent) {
 
 async function generate() {
   if (busy.value || !main.value) return
-  if (!chosen.value && !prompt.value.trim()) return notify('Choisis une tenue.', true)
+  if (!chosen.value) return notify('Choisis une tenue.', true)
   if (!me.value) { authOpen.value = 'register'; return }
   if (me.value.credits < cost) { buyOpen.value = true; return }
   busy.value = true
@@ -86,11 +82,7 @@ async function generate() {
     const res = await fetch('/api/edit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        image: main.value.data,
-        preset: chosen.value || undefined,
-        prompt: prompt.value.trim() || undefined,
-      }),
+      body: JSON.stringify({ image: main.value.data, preset: chosen.value }),
     })
     if (!res.ok) {
       const err = await res.json().catch(() => null)
@@ -101,7 +93,7 @@ async function generate() {
     const left = res.headers.get('X-Credits')
     if (left !== null) setCredits(Number(left))
     const blob = await res.blob()
-    const label = PRESETS.find(p => p.id === chosen.value)?.label || prompt.value.trim()
+    const label = PRESETS.find(p => p.id === chosen.value)?.label || 'résultat'
     results.value.push({ url: URL.createObjectURL(blob), label })
     if (results.value.length > 20) URL.revokeObjectURL(results.value.shift()!.url)
     current.value = results.value.length - 1
@@ -229,6 +221,8 @@ async function save() {
       </section>
 
       <aside class="composer">
+        <span class="composer-title">Choisis la tenue</span>
+
         <div class="presets">
           <button
             v-for="p in presets" :key="p.id" type="button"
@@ -239,12 +233,6 @@ async function save() {
           </button>
         </div>
 
-        <label for="prompt" class="sr">Précise la modification (optionnel)</label>
-        <textarea
-          id="prompt" v-model="prompt" rows="2" maxlength="1500" enterkeyhint="send"
-          placeholder="Précise si tu veux, ex. : garde le soutien-gorge"
-          @keydown.enter.exact.prevent="generate()"
-        />
         <div class="actions">
           <button class="go" :disabled="!canGenerate" @click="generate()">
             {{ goLabel }}
@@ -270,7 +258,7 @@ async function save() {
 .gate b { background: var(--accent); color: var(--accent-ink); border-radius: 6px; padding: 2px 7px; margin-right: 4px; font-size: .74rem; }
 .gate button { border: 0; border-radius: 99px; min-height: 32px; padding: 0 14px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: .82rem; }
 
-.layout { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 0 max(14px, env(safe-area-inset-right, 0px)) calc(190px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
+.layout { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 0 max(14px, env(safe-area-inset-right, 0px)) calc(210px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
 .left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 
 .hero { display: flex; flex-direction: column; gap: 8px; }
@@ -310,17 +298,16 @@ async function save() {
 
 .ghost { min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-weight: 500; font-size: .9rem; }
 
-.composer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(0, 0, 0, .12); display: flex; flex-direction: column; gap: 8px; padding: 10px max(14px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
-.presets { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
-.presets::-webkit-scrollbar { display: none; }
-.preset { flex: 0 0 auto; border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 99px; min-height: 36px; padding: 0 12px; font-size: .82rem; font-weight: 500; }
+.composer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(0, 0, 0, .12); display: flex; flex-direction: column; gap: 10px; padding: 12px max(14px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
+.composer-title { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.preset { flex: 1 1 auto; border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 99px; min-height: 42px; padding: 0 12px; font-size: .85rem; font-weight: 500; }
 .preset.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
 
-textarea { width: 100%; resize: none; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); padding: 10px 12px; font-size: 16px; min-height: 48px; }
 .actions { display: flex; gap: 8px; align-items: center; }
 .go { flex: 1; min-height: 48px; border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 1.05rem; }
 
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(210px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 12px; z-index: 20; max-width: calc(100% - 28px); text-align: center; font-weight: 500; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(230px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 12px; z-index: 20; max-width: calc(100% - 28px); text-align: center; font-weight: 500; }
 .toast.error { background: var(--danger); color: #fff; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); opacity: 0; }
 
@@ -328,7 +315,6 @@ textarea { width: 100%; resize: none; border: 1px solid var(--line); border-radi
   .layout { flex-direction: row; align-items: flex-start; max-width: 1200px; width: 100%; margin: 0 auto; padding-bottom: 24px; }
   .left { flex: 1; }
   .drop { aspect-ratio: 4 / 3; }
-  textarea { min-height: 90px; }
   .composer { position: sticky; top: 12px; width: 340px; border: 1px solid var(--line); border-radius: var(--r); box-shadow: none; padding: 14px; }
   .toast { bottom: 24px; }
 }
