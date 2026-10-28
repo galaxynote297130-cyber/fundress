@@ -1,20 +1,71 @@
 export type Pose = { id: string; label: string; prompt: string }
 
-// Chaque preset ajoute une consigne de pose au prompt du moteur.
-// Le visage, la morphologie et le décor restent imposés comme inchangés.
+// Bloc d'identité repris en tête de chaque preset : sans lui, le moteur réinvente la personne.
+const IDENTITE =
+  "Garde exactement la même personne que sur la photo source. Ne change ni son visage, ni sa coiffure, ni sa carnation."
+
+// Chaque preset décrit la scène complète. Le prompt est concaténé à celui du moteur.
 export const POSES: Pose[] = [
-  { id: 'ecartees', label: 'Jambes écartées', prompt: "assise sur le bord du support, jambes largement écartées vers l'objectif, buste légèrement renversé en arrière" },
-  { id: 'quatre-pattes', label: 'À quatre pattes', prompt: "à quatre pattes, dos creusé, fesses hautes, tête tournée vers l'objectif" },
-  { id: 'allongee', label: 'Allongée sur le dos', prompt: "allongée sur le dos, jambes relevées et ouvertes, bras au-dessus de la tête" },
-  { id: 'cambree', label: 'Debout cambrée', prompt: "debout, hanches poussées vers l'arrière, dos cambré, mains dans les cheveux" },
-  { id: 'assise-ouverte', label: 'Assise jambes ouvertes', prompt: "assise au sol, genoux écartés, appuyée sur les mains derrière elle" },
-  { id: 'dos', label: 'De dos, tête tournée', prompt: "de dos, jambes légèrement écartées, buste pivoté pour regarder par-dessus l'épaule" },
-  { id: 'ventre', label: 'Sur le ventre', prompt: "allongée sur le ventre, fesses relevées, appuyée sur les avant-bras" },
-  { id: 'accoudee', label: 'Accoudée au lit', prompt: "accoudée au bord du lit, hanches hautes, jambes croisées" },
-  { id: 'agenouillee', label: 'Agenouillée', prompt: "à genoux, cuisses écartées, mains posées sur les cuisses, épaules en arrière" },
-  { id: 'cote', label: 'Sur le côté', prompt: "allongée sur le côté, jambe du dessus pliée et relevée" },
-  { id: 'cuisses', label: 'Cuisses relevées', prompt: "sur le dos, cuisses ramenées contre la poitrine, mains aux chevilles" },
-  { id: 'mur', label: 'Écartée au mur', prompt: "debout adossée à un mur, une jambe relevée, mains au-dessus de la tête" },
+  {
+    id: 'cum-on-face',
+    label: 'Cum on Face',
+    prompt: `${IDENTITE} Très gros plan sur son visage, elle regarde l'objectif, langue tirée, quelques traces blanches sur la joue, une main à peau très foncée posée sur son front, fond uni flou, lumière douce de fenêtre, texture de peau réelle.`,
+  },
+  {
+    id: 'blowjob',
+    label: 'Blow Job',
+    prompt: `${IDENTITE} POV depuis gros plan à hauteur de sa bouche, elle lève les yeux vers l'objectif, langue tirée vers l'extérieur sur l'extrémité d'un pénis dont on ne voit que le gland, fond uni légèrement flou, lumière douce de fenêtre, texture de peau réelle, léger grain.`,
+  },
+  {
+    id: 'deep-throat',
+    label: 'Deep Throat',
+    prompt: `${IDENTITE} POV depuis un homme à peau très foncée, gros plan de face, pénis enfoncé jusqu'à la gorge, yeux levés vers l'objectif, fond uni flou, lumière douce.`,
+  },
+  {
+    id: 'bbc-blowjob',
+    label: 'BBC Blowjob',
+    prompt: `${IDENTITE} POV depuis un homme noir à peau très foncée, elle est à genoux entre ses cuisses foncées, lèvres autour de l'extrémité, une main à plat sur la cuisse, fond uni flou, lumière douce de fenêtre.`,
+  },
+  {
+    id: 'pov-blowjob',
+    label: 'POV Blowjob',
+    prompt: `${IDENTITE} Vue en plongée depuis un homme allongé, elle lève les yeux vers l'objectif, bouche ouverte sur l'extrémité, une main sur son torse, fond uni flou, lumière douce.`,
+  },
+  {
+    id: 'closeup-blowjob',
+    label: 'Closeup BlowJob',
+    prompt: `${IDENTITE} Très gros plan sur sa bouche et l'extrémité, lèvres refermées, netteté marquée sur la peau, fond uni très flou, lumière douce.`,
+  },
+  {
+    id: 'cunnilingus',
+    label: 'Cunnilingus',
+    prompt: `${IDENTITE} Vue de trois quarts, elle est allongée sur le dos, jambes relevées, un homme à peau très foncée entre ses cuisses, visage de profil contre elle, une main foncée sur son ventre, cadrage à mi-corps, fond uni, lumière douce.`,
+  },
+  {
+    id: 'creampie',
+    label: 'Creampie',
+    prompt: `${IDENTITE} Vue plongeante, elle est allongée, jambes ouvertes vers l'objectif, une main à peau très foncée écarte sa cuisse, une coulure blanche visible entre les cuisses, haut du corps dans le cadre, fond uni, lumière douce.`,
+  },
+  {
+    id: 'reverse-cowgirl',
+    label: 'Reverse Cowgirl',
+    prompt: `${IDENTITE} Assise dos à un homme à peau très foncée, buste de trois quarts vers l'objectif, mains posées sur ses cuisses, cadrage à mi-corps, fond uni, lumière douce.`,
+  },
+  {
+    id: 'cowgirl',
+    label: 'Cowgirl',
+    prompt: `${IDENTITE} Assise face à un homme à peau très foncée allongé, mains sur son torse, buste droit, cadrage à mi-corps, fond uni, lumière douce.`,
+  },
+  {
+    id: 'fingering',
+    label: 'Fingering',
+    prompt: `${IDENTITE} Allongée, jambes écartées, deux doigts entre les cuisses, tête renversée, une main sur son ventre, cadrage à mi-corps, fond uni, lumière douce.`,
+  },
+  {
+    id: 'spread-legs',
+    label: 'Spread Legs',
+    prompt: `${IDENTITE} Allongée sur le dos, jambes largement écartées vers l'objectif, mains sur les cuisses, fond uni, lumière douce de fenêtre, texture de peau réelle.`,
+  },
 ]
 
 export function findPose(id?: string | null): Pose | null {
