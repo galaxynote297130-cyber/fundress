@@ -45,10 +45,6 @@ export default defineEventHandler(async (event) => {
   }
 
   const payload: Record<string, unknown> = { model, prompt, image, safe_mode: false }
-  if (model !== 'qwen-edit-uncensored') {
-    payload.resolution = '1K'
-    payload.output_format = 'png'
-  }
 
   let res: Response
   try {
