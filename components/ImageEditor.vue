@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// build
 import { ref, computed, onMounted } from 'vue'
 import { MODES, DEFAULT_MODE } from '~/utils/presets'
 
@@ -246,6 +247,7 @@ async function save() {
     <div v-if="message" class="toast" :class="{ error: message.error }" role="status">{{ message.text }}</div>
   </div>
 </template>
+
 <style scoped>
 .app { min-height: 100dvh; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); }
 .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px max(14px, env(safe-area-inset-right, 0px)) 8px max(14px, env(safe-area-inset-left, 0px)); }
