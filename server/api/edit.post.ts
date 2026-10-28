@@ -4,14 +4,14 @@ const VENICE_URL = 'https://api.venice.ai/api/v1/image/edit'
 const MAX_BYTES = 24 * 1024 * 1024
 
 const ERREURS: Record<number, string> = {
-  400: 'Requête refusée par Venice (paramètres invalides).',
-  401: 'Le service de génération est mal configuré (clé Venice invalide).',
-  402: 'Le service de génération est momentanément indisponible (solde Venice épuisé).',
-  413: 'Image trop lourde (25 Mo maximum).',
-  422: 'Cette demande a été refusée par les règles de contenu.',
-  429: 'Trop de demandes. Réessaie dans quelques secondes.',
-  500: 'La génération a échoué. Réessaie.',
-  503: 'Le service est saturé. Réessaie dans un moment.',
+  400: "La photo n'a pas pu être traitée. Essaie avec une autre image.",
+  401: 'Le service est momentanément indisponible. Réessaie dans un instant.',
+  402: 'Le service est momentanément indisponible. Réessaie dans un instant.',
+  413: 'Cette photo est trop lourde. Choisis une image plus légère.',
+  422: "La photo a été refusée. Essaie avec une autre image.",
+  429: "Trop de demandes d'un coup. Patiente quelques secondes.",
+  500: 'La génération a échoué. Réessaie dans un instant.',
+  503: 'La génération a échoué. Réessaie dans un instant.',
 }
 
 export default defineEventHandler(async (event) => {
@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
 
   const { veniceApiKey, veniceModel } = useRuntimeConfig(event)
   if (!veniceApiKey) {
-    throw createError({ statusCode: 500, statusMessage: 'Clé API absente : ajoute NUXT_VENICE_API_KEY dans Cloudflare.' })
+    throw createError({ statusCode: 500, statusMessage: 'Le service est momentanément indisponible.' })
   }
 
   const body = await readBody<{ image?: string; mode?: string }>(event)
@@ -44,21 +44,27 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 402, statusMessage: 'Crédits insuffisants. Recharge ton compte pour continuer.' })
   }
 
+  const payload: Record<string, unknown> = { model, prompt, image, safe_mode: false }
+  if (model !== 'qwen-edit-uncensored') {
+    payload.resolution = '1K'
+    payload.output_format = 'png'
+  }
+
   let res: Response
   try {
     res = await fetch(VENICE_URL, {
       method: 'POST',
       headers: { Authorization: `Bearer ${veniceApiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, prompt, image, resolution: '1K', output_format: 'png', safe_mode: false }),
+      body: JSON.stringify(payload),
     })
   } catch {
     await addCredits(userId, cost)
-    throw createError({ statusCode: 502, statusMessage: 'Impossible de joindre le service de génération. Tes crédits ont été remboursés.' })
+    throw createError({ statusCode: 502, statusMessage: 'Connexion impossible. Tes crédits ont été remboursés.' })
   }
 
   if (!res.ok) {
     await addCredits(userId, cost)
-    const msg = ERREURS[res.status] || `Erreur de génération (${res.status}).`
+    const msg = ERREURS[res.status] || 'La génération a échoué. Réessaie dans un instant.'
     throw createError({ statusCode: res.status === 402 ? 503 : res.status, statusMessage: `${msg} Tes crédits ont été remboursés.` })
   }
 
