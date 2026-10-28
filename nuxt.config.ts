@@ -4,24 +4,21 @@ export default defineNuxtConfig({
   modules: ['nuxt-auth-utils'],
   css: ['~/assets/main.css'],
 
-  // Toutes ces valeurs restent côté serveur, sauf "public".
-  // Elles se règlent dans le fichier .env (voir .env.example).
   runtimeConfig: {
-    veniceApiKey: '',                 // NUXT_VENICE_API_KEY
-    veniceModel: 'qwen-image-2-edit', // NUXT_VENICE_MODEL
-    stripeSecretKey: '',              // NUXT_STRIPE_SECRET_KEY
-    stripeWebhookSecret: '',          // NUXT_STRIPE_WEBHOOK_SECRET
-    // Connexion Google (optionnelle) : NUXT_OAUTH_GOOGLE_CLIENT_ID / NUXT_OAUTH_GOOGLE_CLIENT_SECRET
+    session: {
+      password: process.env.NUXT_SESSION_PASSWORD ?? '',
+    },
+    veniceApiKey: '',
+    veniceModel: 'qwen-image-2-edit',
+    stripeSecretKey: '',
+    stripeWebhookSecret: '',
     oauth: { google: { clientId: '', clientSecret: '' } },
     public: {
-      googleLogin: false,             // NUXT_PUBLIC_GOOGLE_LOGIN=true pour afficher le bouton Google
+      googleLogin: false,
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://fundress.pages.dev',
     },
   },
 
-  // Stockage des comptes, crédits et paiements :
-  // - sur Cloudflare Pages (variable CF_PAGES présente pendant le build) → namespace KV lié sous le nom "DB"
-  // - sur ton Mac → fichiers dans le dossier .data/
-  // Cloudflare Pages est détecté automatiquement : aucun réglage de "preset" à faire.
   nitro: {
     storage: {
       db: process.env.CF_PAGES
@@ -35,17 +32,34 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: 'FUNDRESS',
+      title: "Fundress — AI Undress · Déshabille n'importe quelle photo",
       htmlAttrs: { lang: 'fr' },
       meta: [
-        { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
         { name: 'theme-color', content: '#12151c' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'mobile-web-app-capable', content: 'yes' },
+        { name: 'robots', content: 'index, follow' },
+        { name: 'rating', content: 'mature' },
+        { name: 'keywords', content: 'undress ai, nudify, déshabiller une photo, ia, nu, nsfw, retouche photo adulte' },
+        { name: 'description', content: "Déshabille n'importe quelle photo avec l'IA. Envoie une photo, choisis une tenue, télécharge. Contenu adulte 18+, résultat en quelques secondes." },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:site_name', content: 'Fundress' },
+        { property: 'og:title', content: "Fundress — AI Undress · Déshabille n'importe quelle photo" },
+        { property: 'og:description', content: "Envoie une photo, choisis une tenue, télécharge. Contenu adulte 18+." },
+        { property: 'og:image', content: '/og.png' },
+        { property: 'og:locale', content: 'fr_FR' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: "Fundress — AI Undress" },
+        { name: 'twitter:description', content: "Envoie une photo, choisis une tenue, télécharge." },
+        { name: 'twitter:image', content: '/og.png' },
       ],
       link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'apple-touch-icon', href: '/favicon.svg' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600&display=swap' },
       ],
     },
