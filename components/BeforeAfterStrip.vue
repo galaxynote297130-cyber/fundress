@@ -8,7 +8,7 @@ import { demoScene } from '~/utils/demoScenes'
 const EXEMPLES = [
   { id: 'plage', label: 'Fundress V1', avant: '/exemple-1-avant.webp', apres: '/exemple-1-apres.webp' },
   { id: 'maison', label: 'Fundress V2', avant: '/exemple-3-avant.webp', apres: '/exemple-3-apres.webp' },
-  { id: 'studio', label: 'Fundress V3', avant: '/exemple-4-avant.webp', apres: '/exemple-4-apres.webp' },
+  { id: 'studio', label: 'Fundress V3', avant: '/exemple-4-avant.webp.webp', apres: '/exemple-4-apres.webp.webp' },
 ]
 
 const items = ref(EXEMPLES.map(e => ({ ...e })))
