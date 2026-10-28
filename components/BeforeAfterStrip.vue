@@ -22,7 +22,6 @@ onMounted(() => {
 
 <template>
   <div class="showcase" aria-label="Exemples avant / après">
-    <h2>Exemples avant / après</h2>
     <div class="row">
       <div v-for="e in items" :key="e.id" class="ba">
         <div class="frame">
@@ -40,7 +39,6 @@ onMounted(() => {
 
 <style scoped>
 .showcase { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 12px; display: flex; flex-direction: column; gap: 10px; }
-h2 { margin: 0; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
 .row { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .row::-webkit-scrollbar { display: none; }
 .ba { flex: 0 0 230px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
