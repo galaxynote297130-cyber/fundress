@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Bandeau d'exemples avant / après.
-// Les images sont dans public/, à la racine (exemple-1-avant.png, etc.).
+// Les images sont dans public/, à la racine.
 // Si un chemin est vide, une image d'exemple dessinée est utilisée.
 import { ref, onMounted } from 'vue'
 import { demoScene } from '~/utils/demoScenes'
@@ -8,7 +8,7 @@ import { demoScene } from '~/utils/demoScenes'
 const EXEMPLES = [
   { id: 'plage', label: 'Sous-vêtements', avant: '/exemple-1-avant.png', apres: '/exemple-1-apres.png' },
   { id: 'voiture', label: 'Enlever tout', avant: '/exemple-2-avant.png', apres: '/exemple-2-apres.png' },
-  { id: 'maison', label: 'Nu intégral', avant: '/exemple-3-avant.png', apres: '/exemple-3-apres.png' },
+  { id: 'maison', label: 'Nu intégral', avant: '/exemple-3-avant.webp', apres: '/exemple-3-apres.webp' },
 ]
 
 const items = ref(EXEMPLES.map(e => ({ ...e })))
