@@ -1,10 +1,10 @@
 // Comptes utilisateurs et crédits.
 // Stockage : useStorage('db') → dossier .data/db en local (voir nuxt.config.ts).
 
-export const FREE_CREDITS = 5 // crédits offerts à l'inscription
+export const FREE_CREDITS = 2 // crédits offerts à l'inscription
 
-// Coût d'une génération selon la qualité
-export const COSTS: Record<string, number> = { '1K': 1, '2K': 2 }
+// Coût d'une génération
+export const COSTS: Record<string, number> = { '1K': 1 }
 
 // Packs vendus via Stripe (prix en centimes d'euro)
 export const PACKS = [
