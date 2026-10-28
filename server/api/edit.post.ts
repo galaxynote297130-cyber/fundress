@@ -1,4 +1,4 @@
-import { buildPrompt } from '~/utils/presets'
+import { buildPrompt, findMode } from '~/utils/presets'
 
 const VENICE_URL = 'https://api.venice.ai/api/v1/image/edit'
 const MAX_BYTES = 24 * 1024 * 1024
@@ -26,11 +26,12 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: 'Clé API absente : ajoute NUXT_VENICE_API_KEY dans Cloudflare.' })
   }
 
-  const body = await readBody<{ image?: string; preset?: string; prompt?: string }>(event)
-  const prompt = buildPrompt(body?.preset, body?.prompt)
-  const model = veniceModel || 'qwen-image-2-edit'
+  const body = await readBody<{ image?: string; mode?: string }>(event)
+  const mode = findMode(body?.mode)
+  const prompt = buildPrompt(body?.mode)
+  const model = mode?.model || veniceModel || 'qwen-image-2-edit'
 
-  if (!prompt) throw createError({ statusCode: 400, statusMessage: 'Choisis une tenue ou décris la modification.' })
+  if (!prompt) throw createError({ statusCode: 400, statusMessage: 'Choisis un modèle.' })
 
   const image = (body?.image || '').replace(/^data:image\/[\w+.-]+;base64,/, '')
   const cost = 1
