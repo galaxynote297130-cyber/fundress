@@ -162,6 +162,12 @@ async function save() {
 
     <main class="layout">
       <section class="left">
+        <div class="privacy">
+          <span>Paiement sécurisé par Stripe</span>
+          <span>Aucun abonnement</span>
+          <span>Photo supprimée après usage</span>
+        </div>
+
         <BeforeAfterStrip />
 
         <div class="drops">
@@ -221,12 +227,6 @@ async function save() {
           </div>
         </div>
 
-        <div class="privacy">
-          <span>Photo non conservée après génération</span>
-          <span>Transmise de façon anonymisée</span>
-          <span>Sans watermark</span>
-        </div>
-
         <SiteFooter />
       </section>
 
@@ -271,6 +271,10 @@ async function save() {
 .layout { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 0 max(14px, env(safe-area-inset-right, 0px)) calc(210px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
 .left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 
+.privacy { display: flex; flex-wrap: wrap; gap: 6px; font-size: .72rem; color: var(--muted); }
+.privacy span { display: inline-flex; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 99px; padding: 5px 10px; }
+.privacy span::before { content: "✓"; color: #22c55e; font-weight: 800; margin-right: 5px; }
+
 .drops { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .drop { position: relative; flex: 1; aspect-ratio: 3 / 4; border: 2px dashed var(--line); border-radius: var(--r); background: var(--surface); display: grid; place-items: center; overflow: hidden; cursor: pointer; transition: border-color .15s, background .15s; }
 .drop:hover, .drop.over { border-color: var(--mask); background: color-mix(in srgb, var(--mask) 8%, var(--surface)); }
@@ -289,44 +293,4 @@ async function save() {
 
 .busy { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--sunk) 55%, transparent); backdrop-filter: blur(3px); }
 .busy span { background: var(--surface); border: 1px solid var(--line); padding: 10px 16px; border-radius: 99px; display: flex; gap: 8px; align-items: center; font-weight: 500; }
-.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); animation: pulse 1s infinite; }
-@keyframes pulse { 50% { opacity: .25; } }
-
-.strip { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; }
-.thumb { flex: 0 0 auto; width: 84px; border: 0; padding: 0; background: none; text-align: left; scroll-snap-align: start; display: flex; flex-direction: column; gap: 3px; }
-.thumb img { width: 84px; height: 84px; object-fit: cover; border-radius: 8px; border: 2px solid transparent; }
-.thumb.on img { border-color: var(--accent); }
-.thumb small { font-size: .7rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-.perks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.perk { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; }
-.perk b { font-family: var(--f-display); font-size: .82rem; line-height: 1.2; }
-.perk span { font-size: .72rem; color: var(--muted); line-height: 1.3; }
-
-.privacy { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .74rem; color: var(--muted); }
-.privacy span::before { content: "✓"; color: #22c55e; font-weight: 800; margin-right: 5px; }
-
-.ghost { min-height: 44px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-weight: 500; font-size: .85rem; }
-.ghost:disabled { opacity: .45; }
-
-.composer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(0, 0, 0, .12); display: flex; flex-direction: column; gap: 10px; padding: 12px max(14px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
-.composer-title { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
-.presets { display: flex; flex-wrap: wrap; gap: 6px; }
-.preset { flex: 1 1 auto; border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 99px; min-height: 42px; padding: 0 12px; font-size: .85rem; font-weight: 500; }
-.preset.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
-
-.actions { display: flex; gap: 8px; align-items: center; }
-.go { flex: 1; min-height: 48px; border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 1.05rem; }
-.go:disabled { opacity: .5; }
-
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(230px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 12px; z-index: 20; max-width: calc(100% - 28px); text-align: center; font-weight: 500; }
-.toast.error { background: var(--danger); color: #fff; }
-.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); opacity: 0; }
-
-@media (min-width: 900px) {
-  .layout { flex-direction: row; align-items: flex-start; max-width: 1200px; width: 100%; margin: 0 auto; padding-bottom: 24px; }
-  .left { flex: 1; }
-  .composer { position: sticky; top: 12px; width: 340px; border: 1px solid var(--line); border-radius: var(--r); box-shadow: none; padding: 14px; }
-  .toast { bottom: 24px; }
-}
-</style>
+.dot { width: 10px; height: 10px
