@@ -24,14 +24,13 @@ async function stripe<T = any>(path: string, init: { method?: string; body?: Rec
   return data as T
 }
 
-export async function createCheckout(opts: { origin: string; userId: string; email: string; pack: { id: string; credits: number; price: number; label: string } }) {
+export async function createCheckout(opts: { origin: string; userId: string; pack: { id: string; credits: number; price: number; label: string } }) {
   return stripe<{ id: string; url: string }>('/checkout/sessions', {
     method: 'POST',
     body: {
       mode: 'payment',
       success_url: `${opts.origin}/?paiement=ok&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${opts.origin}/?paiement=annule`,
-      customer_email: opts.email,
       client_reference_id: opts.userId,
       'line_items[0][quantity]': 1,
       'line_items[0][price_data][currency]': 'eur',
