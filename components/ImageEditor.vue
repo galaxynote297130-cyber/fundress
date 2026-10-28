@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { MODES, DEFAULT_MODE } from '~/utils/presets'
 
-const { me, authOpen, buyOpen, refresh, confirmPayment, setCredits } = useAccount()
+const { me, packs, authOpen, buyOpen, refresh, confirmPayment, setCredits, buy } = useAccount()
 
 const MAX_SIDE = 2048
 type Slot = { url: string; data: string; name: string } | null
@@ -11,6 +11,7 @@ const over = ref(false)
 const busy = ref(false)
 const message = ref<{ text: string; error?: boolean } | null>(null)
 const ageOk = ref(true)
+const buying = ref('')
 
 type Result = { url: string; label: string }
 const results = ref<Result[]>([])
@@ -22,6 +23,16 @@ const chosen = ref(DEFAULT_MODE)
 
 function choose(id: string) {
   chosen.value = id
+}
+
+const euro = (cents: number) => (cents / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })
+const perEdit = (p: { credits: number; price: number }) => euro(Math.round(p.price / p.credits))
+
+async function acheter(id: string) {
+  if (buying.value) return
+  if (!me.value) { authOpen.value = 'register'; return }
+  buying.value = id
+  try { await buy(id) } catch (e: any) { notify(e?.message || 'Paiement indisponible.', true); buying.value = '' }
 }
 
 const cost = 1
@@ -59,6 +70,18 @@ async function setPhoto(f?: File | null) {
     main.value = await readImage(f, f.name)
   } catch (e: any) {
     notify(e?.message || 'Impossible de lire cette image.', true)
+  }
+}
+
+async function tryExample() {
+  if (busy.value) return
+  try {
+    const res = await fetch('/exemple-4-avant.webp.webp')
+    if (!res.ok) throw new Error()
+    main.value = await readImage(await res.blob(), 'exemple')
+    notify('Photo d’exemple chargée')
+  } catch {
+    notify('Exemple indisponible pour le moment.', true)
   }
 }
 
@@ -162,13 +185,23 @@ async function save() {
 
     <main class="layout">
       <section class="left">
+        <div class="hero">
+          <span class="hero-tag">Rendu photoréaliste</span>
+          <h1>Des photos déshabillées <em>qui ne se voient pas.</em></h1>
+          <p>Même pose, même décor, même lumière. Seul le vêtement disparaît.</p>
+          <div class="hero-cta">
+            <button class="primary" @click="tryExample">Essayer avec une photo d’exemple</button>
+            <span>2 images offertes à l’inscription</span>
+          </div>
+        </div>
+
+        <BeforeAfterStrip />
+
         <div class="privacy">
           <span>Paiement sécurisé par Stripe</span>
           <span>Aucun abonnement</span>
           <span>Photo supprimée après usage</span>
         </div>
-
-        <BeforeAfterStrip />
 
         <div class="drops">
           <label
@@ -214,8 +247,8 @@ async function save() {
 
         <div class="perks">
           <div class="perk">
-            <b>Rendu réaliste</b>
-            <span>Pose, décor et lumière conservés</span>
+            <b>Rendu photoréaliste</b>
+            <span>Pose, décor et lumière conservés au pixel près</span>
           </div>
           <div class="perk">
             <b>1 crédit par image</b>
@@ -225,6 +258,27 @@ async function save() {
             <b>Prêt en quelques secondes</b>
             <span>Deux modèles au choix, résultat immédiat</span>
           </div>
+        </div>
+
+        <div class="pricing">
+          <div class="pricing-head">
+            <b>Des crédits, jamais d’abonnement</b>
+            <span>1 crédit = 1 image. Les crédits n’expirent pas.</span>
+          </div>
+          <div class="packs">
+            <button
+              v-for="p in packs" :key="p.id" class="pack" :class="{ best: p.best }"
+              :disabled="!!buying" @click="acheter(p.id)"
+            >
+              <span v-if="p.best" class="flag">Le plus choisi</span>
+              <b>{{ p.credits }}</b>
+              <span class="unit">crédits</span>
+              <strong>{{ euro(p.price) }}</strong>
+              <small>{{ perEdit(p) }} / image</small>
+              <span v-if="buying === p.id" class="wait">Ouverture…</span>
+            </button>
+          </div>
+          <p class="secure">Paiement sécurisé par Stripe · carte bancaire, Apple Pay, Google Pay</p>
         </div>
 
         <SiteFooter />
@@ -271,6 +325,15 @@ async function save() {
 .layout { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 0 max(14px, env(safe-area-inset-right, 0px)) calc(210px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
 .left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 
+.hero { display: flex; flex-direction: column; gap: 8px; }
+.hero-tag { align-self: flex-start; font-size: .64rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-ink); background: var(--accent); border-radius: 99px; padding: 3px 10px; }
+.hero h1 { font-family: var(--f-display); font-size: clamp(1.5rem, 5.4vw, 2.1rem); line-height: 1.06; letter-spacing: -.03em; margin: 0; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero p { margin: 0; font-size: .88rem; color: var(--muted); line-height: 1.4; }
+.hero-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 4px; }
+.hero-cta span { font-size: .74rem; color: var(--muted); }
+.primary { min-height: 46px; padding: 0 18px; border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: .92rem; }
+
 .privacy { display: flex; flex-wrap: wrap; gap: 6px; font-size: .72rem; color: var(--muted); }
 .privacy span { display: inline-flex; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 99px; padding: 5px 10px; }
 .privacy span::before { content: "✓"; color: #22c55e; font-weight: 800; margin-right: 5px; }
@@ -306,6 +369,21 @@ async function save() {
 .perk { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; }
 .perk b { font-family: var(--f-display); font-size: .82rem; line-height: 1.2; }
 .perk span { font-size: .72rem; color: var(--muted); line-height: 1.3; }
+
+.pricing { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.pricing-head { display: flex; flex-direction: column; gap: 2px; }
+.pricing-head b { font-family: var(--f-display); font-size: 1rem; }
+.pricing-head span { font-size: .76rem; color: var(--muted); }
+.packs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pack { position: relative; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 16px 6px 11px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+.pack.best { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.pack b { font-family: var(--f-display); font-size: 1.6rem; line-height: 1; }
+.unit { font-size: .74rem; color: var(--muted); margin-bottom: 5px; }
+.pack strong { font-size: .95rem; }
+.pack small { font-size: .68rem; color: var(--muted); }
+.flag { position: absolute; top: -9px; background: var(--accent); color: var(--accent-ink); font-size: .62rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+.wait { font-size: .66rem; color: var(--muted); margin-top: 3px; }
+.secure { margin: 0; text-align: center; font-size: .72rem; color: var(--muted); }
 
 .ghost { min-height: 44px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-weight: 500; font-size: .85rem; }
 .ghost:disabled { opacity: .45; }
