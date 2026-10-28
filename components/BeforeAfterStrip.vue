@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Bandeau d'exemples avant / après.
-// La première vignette alterne entre V1 et V2 quand le balayage est masqué.
+// La première vignette alterne entre V1 et V2, synchronisée sur le balayage.
 // La seconde reste fixe, mise en avant en V2.
 import { ref, onMounted, onUnmounted } from 'vue'
 import { demoScene } from '~/utils/demoScenes'
@@ -15,7 +15,7 @@ const EXEMPLES = [
 
 type Item = { id: string; avant: string; apres: string[]; alt: boolean; badge: string; v: number }
 const items = ref<Item[]>([])
-const minuteries: any[] = []
+const minuteurs: any[] = []
 
 onMounted(() => {
   items.value = EXEMPLES.map(e => ({
@@ -28,14 +28,14 @@ onMounted(() => {
   }))
   items.value.forEach((e, i) => {
     if (!e.alt) return
-    minuteries.push(setTimeout(() => {
-      minuteries.push(setInterval(() => { e.v = 1 - e.v }, DUREE))
+    minuteurs.push(setTimeout(() => {
+      minuteurs.push(setInterval(() => { e.v = 1 - e.v }, DUREE))
     }, i * DECALAGE))
   })
 })
 
 onUnmounted(() => {
-  minuteries.forEach(t => { clearTimeout(t); clearInterval(t) })
+  minuteurs.forEach(t => { clearTimeout(t); clearInterval(t) })
 })
 </script>
 
@@ -78,14 +78,20 @@ onUnmounted(() => {
 .frame { position: relative; aspect-ratio: 3 / 4; border-radius: 12px; overflow: hidden; background: var(--sunk); }
 .frame.highlight { box-shadow: 0 0 0 2px var(--accent); }
 .frame > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
-.after { position: absolute; inset: 0; clip-path: inset(0 0 0 50%); animation: wipe 5s ease-in-out infinite; }
+.after { position: absolute; inset: 0; clip-path: inset(0 0 0 50%); animation: wipe 5s linear infinite; }
 .after img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
 .after img:not(:only-child) { opacity: 0; transition: opacity .3s ease; }
 .after img.on { opacity: 1; }
-.line { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: #fff; box-shadow: 0 0 4px rgba(0, 0, 0, .5); animation: line 5s ease-in-out infinite; }
+.line { position: absolute; top: 0; bottom: 0; left: 0; width: 2px; background: #fff; box-shadow: 0 0 4px rgba(0, 0, 0, .5); animation: line 5s linear infinite; }
 .ba:nth-child(2) .after, .ba:nth-child(2) .line { animation-delay: -1.6s; }
-@keyframes wipe { 0%, 100% { clip-path: inset(0 0 0 82%); } 50% { clip-path: inset(0 0 0 0); } }
-@keyframes line { 0%, 100% { left: 82%; } 50% { left: 100%; } }
+@keyframes wipe {
+  0% { clip-path: inset(0 100% 0 0); }
+  88%, 100% { clip-path: inset(0 0 0 0); }
+}
+@keyframes line {
+  0% { left: 0; }
+  88%, 100% { left: 100%; }
+}
 .lbl { position: absolute; top: 8px; font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #fff; background: rgba(10, 12, 18, .65); padding: 3px 8px; border-radius: 6px; backdrop-filter: blur(4px); }
 .lbl.l { left: 8px; }
 .lbl.r { right: 8px; }
@@ -96,5 +102,7 @@ onUnmounted(() => {
 }
 @media (prefers-reduced-motion: reduce) {
   .after, .line { animation: none; }
+  .after { clip-path: inset(0 0 0 50%); }
+  .line { left: 50%; }
 }
 </style>
