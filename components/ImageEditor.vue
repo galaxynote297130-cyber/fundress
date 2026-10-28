@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { PRESETS, DEFAULT_PRESET } from '~/utils/presets'
+import { MODES, DEFAULT_MODE } from '~/utils/presets'
 
 const { me, authOpen, buyOpen, refresh, confirmPayment, setCredits } = useAccount()
 
@@ -17,8 +17,8 @@ const results = ref<Result[]>([])
 const current = ref(-1)
 const shown = computed(() => results.value[current.value] || null)
 
-const presets = PRESETS
-const chosen = ref(DEFAULT_PRESET)
+const modes = MODES
+const chosen = ref(DEFAULT_MODE)
 
 function choose(id: string) {
   chosen.value = id
@@ -74,7 +74,7 @@ function onDrop(e: DragEvent) {
 
 async function generate() {
   if (busy.value || !main.value) return
-  if (!chosen.value) return notify('Choisis une tenue.', true)
+  if (!chosen.value) return notify('Choisis un modèle.', true)
   if (!me.value) { authOpen.value = 'register'; return }
   if (me.value.credits < cost) { buyOpen.value = true; return }
   busy.value = true
@@ -82,7 +82,7 @@ async function generate() {
     const res = await fetch('/api/edit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image: main.value.data, preset: chosen.value }),
+      body: JSON.stringify({ image: main.value.data, mode: chosen.value }),
     })
     if (!res.ok) {
       const err = await res.json().catch(() => null)
@@ -93,7 +93,7 @@ async function generate() {
     const left = res.headers.get('X-Credits')
     if (left !== null) setCredits(Number(left))
     const blob = await res.blob()
-    const label = PRESETS.find(p => p.id === chosen.value)?.label || 'résultat'
+    const label = MODES.find(m => m.id === chosen.value)?.label || 'résultat'
     results.value.push({ url: URL.createObjectURL(blob), label })
     if (results.value.length > 20) URL.revokeObjectURL(results.value.shift()!.url)
     current.value = results.value.length - 1
@@ -181,7 +181,7 @@ async function save() {
               <strong>Ta photo</strong>
               <small>Touche pour choisir ou dépose ta photo ici</small>
             </span>
-            <span v-if="main" class="tag">Ta photo · changer</span>
+            <span v-if="main" class="tag">Ta photo · changes</span>
           </label>
 
           <div class="drop out" :class="{ done: shown }">
@@ -221,15 +221,15 @@ async function save() {
       </section>
 
       <aside class="composer">
-        <span class="composer-title">Choisis la tenue</span>
+        <span class="composer-title">Quel modèle souhaites-tu utiliser ?</span>
 
         <div class="presets">
           <button
-            v-for="p in presets" :key="p.id" type="button"
-            class="preset" :class="{ on: chosen === p.id }"
-            @click="choose(p.id)"
+            v-for="m in modes" :key="m.id" type="button"
+            class="preset" :class="{ on: chosen === m.id }"
+            @click="choose(m.id)"
           >
-            {{ p.label }}
+            {{ m.label }}
           </button>
         </div>
 
