@@ -20,8 +20,6 @@ const gradients = [
     <main class="wrap">
       <RubriquesTabs active="pose" />
 
-      <BeforeAfterStrip />
-
       <p class="hint">Choisis une scène et envoie ta photo. Le visage, la morphologie et le décor sont conservés.</p>
 
       <div class="grid">
@@ -36,12 +34,6 @@ const gradients = [
             <img v-if="!broken[p.id]" :src="`/poses/${p.id}.webp`" :alt="p.label" loading="lazy" decoding="async" @error="broken[p.id] = true">
           </span>
         </NuxtLink>
-      </div>
-
-      <div class="privacy">
-        <span>Paiement sécurisé par Stripe</span>
-        <span>Aucun abonnement</span>
-        <span>Photo supprimée après usage</span>
       </div>
 
       <SiteFooter />
