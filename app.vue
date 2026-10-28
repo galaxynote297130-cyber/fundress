@@ -1,3 +1,3 @@
 <template>
-  <ImageEditor />
+  <NuxtPage />
 </template>
