@@ -164,7 +164,6 @@ async function save() {
       <section class="left">
         <div class="hero">
           <h1>Déshabille n'importe quelle photo <em>en un clic.</em></h1>
-          <p class="sub">Envoie ta photo, choisis une tenue, télécharge. Ça marche aussi sur les hommes.</p>
         </div>
 
         <BeforeAfterStrip />
@@ -264,7 +263,6 @@ async function save() {
 .hero { display: flex; flex-direction: column; gap: 8px; }
 .hero h1 { font-family: var(--f-display); font-size: clamp(1.4rem, 5vw, 2rem); line-height: 1.08; letter-spacing: -.03em; margin: 0; }
 .hero h1 em { font-style: normal; color: var(--accent); }
-.hero .sub { color: var(--muted); font-size: .9rem; line-height: 1.45; margin: 0; }
 
 .drops { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .drop { position: relative; flex: 1; aspect-ratio: 3 / 4; border: 2px dashed var(--line); border-radius: var(--r); background: var(--surface); display: grid; place-items: center; overflow: hidden; cursor: pointer; transition: border-color .15s, background .15s; }
