@@ -32,11 +32,11 @@ export default defineEventHandler(async (event) => {
   const pose = findPose(body?.pose)
   const prompt = [buildPrompt(body?.mode), pose?.prompt].filter(Boolean).join(' ').trim()
   const model = mode?.model || veniceModel || 'qwen-image-2-edit'
+  const cost = mode?.cost || 10
 
   if (!prompt) throw createError({ statusCode: 400, statusMessage: 'Choisis un modèle.' })
 
   const image = (body?.image || '').replace(/^data:image\/[\w.+-]+;base64,/, '')
-  const cost = 1
 
   if (!image) throw createError({ statusCode: 400, statusMessage: 'Ajoute ta photo.' })
   if (image.length * 0.75 > MAX_BYTES) throw createError({ statusCode: 413, statusMessage: ERREURS[413] })
