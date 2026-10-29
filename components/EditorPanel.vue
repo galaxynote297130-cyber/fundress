@@ -30,12 +30,12 @@ defineEmits<{ choose: [string]; choosePose: [string]; generate: [] }>()
       </select>
     </label>
 
-    <div class="grp">
+    <div v-else class="grp">
       <span class="lab">Description <em class="soon">à venir</em></span>
       <div class="field off"><span>Décris ta propre scène…</span></div>
     </div>
 
-    <div class="grp">
+    <div v-if="props.variant !== 'pose'" class="grp">
       <span class="lab">Modèle</span>
       <div class="modes">
         <button
@@ -48,25 +48,19 @@ defineEmits<{ choose: [string]; choosePose: [string]; generate: [] }>()
     </div>
 
     <button class="create" :disabled="!props.canGenerate" @click="$emit('generate')">{{ goLabel }}</button>
+    <p v-if="props.variant === 'pose'" class="prix">{{ props.cost }} crédits par image</p>
     <NuxtLink to="/credits" class="rech">Recharger des crédits</NuxtLink>
   </aside>
 </template>
 
 <style scoped>
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px; display: flex; flex-direction: column; gap: 9px; }
-.ptitle { font-size: .74rem; font-weight: 800; color: var(--accent); }
-.desc { font-size: .68rem; color: var(--muted); margin: 0; line-height: 1.4; }
-.lab { font-size: .7rem; color: var(--fg); font-weight: 700; display: block; margin-bottom: 5px; }
-.soon { font-style: normal; font-size: .54rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); border: 1px solid var(--line); border-radius: 99px; padding: 1px 6px; margin-left: 4px; }
-select { width: 100%; min-height: 36px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--fg); font-family: inherit; font-size: .78rem; padding: 0 8px; }
-.field { border: 1px dashed var(--line); border-radius: 8px; background: var(--bg); padding: 9px; min-height: 54px; font-size: .74rem; color: var(--muted); }
-.field.off { opacity: .55; }
-.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.modes button { border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 8px; padding: 8px 4px; font-size: .78rem; font-weight: 700; display: flex; flex-direction: column; gap: 2px; align-items: center; font-family: inherit; }
-.modes button small { font-size: .6rem; color: var(--muted); font-weight: 400; }
-.modes button.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--bg)); color: var(--accent); }
-.create { margin-top: auto; min-height: 44px; border: 0; border-radius: 9px; background: var(--accent); color: var(--accent-ink); font-weight: 800; font-size: .88rem; }
-.create:disabled { opacity: .5; }
-.rech { text-align: center; font-size: .68rem; color: var(--muted); text-decoration: none; }
-.rech:hover { color: var(--fg); }
-</style>
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:9px}
+.ptitle{font-size:.74rem;font-weight:800;color:var(--accent)}
+.desc{font-size:.68rem;color:var(--muted);margin:0;line-height:1.4}
+.lab{font-size:.7rem;color:var(--fg);font-weight:700;display:block;margin-bottom:5px}
+.soon{font-style:normal;font-size:.54rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:1px 6px;margin-left:4px}
+select{width:100%;min-height:36px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);font-family:inherit;font-size:.78rem;padding:0 8px}
+.field{border:1px dashed var(--line);border-radius:8px;background:var(--bg);padding:9px;min-height:54px;font-size:.74rem;color:var(--muted)}
+.field.off{opacity:.55}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.modes button{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:8px;padding:8px 4px;font-size:.78rem;font-weight:700;display:flex;flex-direction:column;gap:2px;align-items:
