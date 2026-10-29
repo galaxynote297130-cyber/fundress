@@ -7,6 +7,8 @@
         Tes générations sont rangées ici, sur cet appareil uniquement. Personne d’autre n’y a accès,
         en cas de fermeture du navigateur ou d'un problème de connexion tu pourras y accéder pendant 1 heure.
       </p>
+      <p v-if="erreur" class="perr">{{ erreur }}</p>
+
       <div class="gfilters">
         <button class="gf" :class="{ on: filtre === 'tout' }" @click="filtre = 'tout'">Tout</button>
         <button class="gf" :class="{ on: filtre === 'image' }" @click="filtre = 'image'">Images</button>
@@ -34,7 +36,7 @@
 <script setup lang="ts">
 useHead({ title: 'Galerie — Fundress', link: [{ rel: 'stylesheet', href: '/editor.css' }] })
 
-const { items, list, remove, clear } = useGallery()
+const { items, erreur, list, remove, clear } = useGallery()
 const filtre = ref<'tout' | 'image' | 'video'>('tout')
 const visibles = computed(() => items.value.filter(i => filtre.value === 'tout' || i.kind === filtre.value))
 
