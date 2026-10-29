@@ -15,29 +15,29 @@ defineEmits<{ choose: [string]; choosePose: [string]; generate: [] }>()
 </script>
 
 <template>
-  <aside class="panel">
-    <span class="ptitle">{{ props.variant === 'pose' ? 'Scène' : 'Édition' }}</span>
-    <p class="desc">
+  <aside class="ed-panel">
+    <span class="ed-ptitle">{{ props.variant === 'pose' ? 'Scène' : 'Édition' }}</span>
+    <p class="ed-desc">
       {{ props.variant === 'pose'
         ? "La scène s'applique à ta photo. Le visage et le décor sont conservés."
         : 'Le visage, la pose et le décor sont conservés.' }}
     </p>
 
-    <label v-if="props.variant === 'pose'" class="grp">
-      <span class="lab">Scène</span>
+    <label v-if="props.variant === 'pose'">
+      <span class="ed-lab">Scène</span>
       <select :value="props.poseId || ''" @change="$emit('choosePose', ($event.target as HTMLSelectElement).value)">
         <option v-for="p in POSES" :key="p.id" :value="p.id">{{ p.label }}</option>
       </select>
     </label>
 
-    <div v-else class="grp">
-      <span class="lab">Description <em class="soon">à venir</em></span>
-      <div class="field off"><span>Décris ta propre scène…</span></div>
+    <div v-else>
+      <span class="ed-lab">Description <em class="ed-soon">à venir</em></span>
+      <div class="ed-field">Décris ta propre scène…</div>
     </div>
 
-    <div v-if="props.variant !== 'pose'" class="grp">
-      <span class="lab">Modèle</span>
-      <div class="modes">
+    <div v-if="props.variant !== 'pose'">
+      <span class="ed-lab">Modèle</span>
+      <div class="ed-modes">
         <button
           v-for="m in MODES" :key="m.id" type="button"
           :class="{ on: props.chosen === m.id }" @click="$emit('choose', m.id)"
@@ -47,20 +47,8 @@ defineEmits<{ choose: [string]; choosePose: [string]; generate: [] }>()
       </div>
     </div>
 
-    <button class="create" :disabled="!props.canGenerate" @click="$emit('generate')">{{ goLabel }}</button>
-    <p v-if="props.variant === 'pose'" class="prix">{{ props.cost }} crédits par image</p>
-    <NuxtLink to="/credits" class="rech">Recharger des crédits</NuxtLink>
+    <button class="ed-create" :disabled="!props.canGenerate" @click="$emit('generate')">{{ goLabel }}</button>
+    <p v-if="props.variant === 'pose'" class="ed-prix">{{ props.cost }} crédits par image</p>
+    <NuxtLink to="/credits" class="ed-rech">Recharger des crédits</NuxtLink>
   </aside>
 </template>
-
-<style scoped>
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:9px}
-.ptitle{font-size:.74rem;font-weight:800;color:var(--accent)}
-.desc{font-size:.68rem;color:var(--muted);margin:0;line-height:1.4}
-.lab{font-size:.7rem;color:var(--fg);font-weight:700;display:block;margin-bottom:5px}
-.soon{font-style:normal;font-size:.54rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:1px 6px;margin-left:4px}
-select{width:100%;min-height:36px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);font-family:inherit;font-size:.78rem;padding:0 8px}
-.field{border:1px dashed var(--line);border-radius:8px;background:var(--bg);padding:9px;min-height:54px;font-size:.74rem;color:var(--muted)}
-.field.off{opacity:.55}
-.modes{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.modes button{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:8px;padding:8px 4px;font-size:.78rem;font-weight:700;display:flex;flex-direction:column;gap:2px;align-items:
