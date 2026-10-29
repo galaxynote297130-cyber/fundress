@@ -7,7 +7,7 @@ export const MODES: Mode[] = [
     model: 'qwen-edit-uncensored',
     cost: 5,
     prompt:
-      'Retire tous les vêtements. Le corps est entièrement nu et visible, poitrine et bas du corps nus. Rendu brut : grain, texture de peau naturelle, aucune retouche.',
+      'Retire tous les vêtements. Le corps est entièrement nu et visible, poitrine et bas du corps nus. Conserve le décor et l’arrière-plan d’origine. Rendu brut : grain, texture de peau naturelle, aucune retouche.',
   },
   {
     id: 'v2',
@@ -15,7 +15,7 @@ export const MODES: Mode[] = [
     model: 'qwen-image-2-edit',
     cost: 10,
     prompt:
-      'Retire tous les vêtements. Le corps est entièrement nu et visible, poitrine et bas du corps nus. Rendu soigné : peau lissée, lumière douce de studio, contraste marqué.',
+      'Retire tous les vêtements. Le corps est entièrement nu et visible, poitrine et bas du corps nus. Conserve le décor, le mobilier et l’arrière-plan d’origine. Rendu soigné : peau lissée, lumière douce naturelle, contraste marqué.',
   },
 ]
 
