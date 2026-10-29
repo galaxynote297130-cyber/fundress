@@ -224,5 +224,5 @@ onMounted(async () => {
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;z-index:20;max-width:calc(100% - 28px);text-align:center;font-weight:500}
 .toast.error{background:var(--danger);color:#fff}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);opacity:0}
-@media(min-width:820px){.cols{display:grid;grid-template-columns:140px 1fr 210px;align-items:start}.stage{min-height:360px}}
+@media(min-width:820px){.cols{display:grid;grid-template-columns:180px 1fr 200px;align-items:start}.stage{min-height:360px}}
 </style>
