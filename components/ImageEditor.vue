@@ -9,12 +9,17 @@ const route = useRoute()
 
 const { me, main, busy, message, shown, notify, setPhoto, save, runGenerate, init } = useEditor()
 
-const chosen = ref(props.variant === 'pose' ? 'v2' : DEFAULT_MODE)
+const chosen = ref<'v1' | 'v2'>(props.variant === 'pose' ? 'v2' : (DEFAULT_MODE as 'v1' | 'v2'))
+const description = ref('')
+const promptOpen = ref(false)
 const pose = ref(
   findPose(props.poseId || String(route.query.pose || '')) || (props.variant === 'pose' ? POSES[0] : null)
 )
 
-const cout = computed(() => estPose.value ? 10 : (MODES.find(m => m.id === chosen.value)?.cost || 10))
+const cout = computed(() => {
+  if (estPose.value) return 10
+  return (MODES.find(m => m.id === chosen.value)?.cost || 5) + (pose.value ? 5 : 0)
+})
 const canGenerate = computed(() => !!main.value && !busy.value)
 const goLabel = computed(() => {
   if (busy.value) return 'En cours…'
@@ -26,7 +31,13 @@ const goLabel = computed(() => {
 
 function generate() {
   if (estPose.value && !pose.value) return notify('Choisis une scène.', true)
-  runGenerate({ mode: estPose.value ? 'v2' : chosen.value, pose: pose.value?.id, cout: cout.value, label: pose.value?.label })
+  runGenerate({
+    mode: estPose.value ? 'v2' : chosen.value,
+    pose: pose.value?.id,
+    description: promptOpen.value ? description.value : '',
+    cout: cout.value,
+    label: pose.value?.label
+  })
 }
 
 useHead({ link: [{ rel: 'stylesheet', href: '/editor.css' }] })
@@ -38,24 +49,24 @@ onMounted(init)
   <div class="ed-app">
     <SiteTop />
     <main class="ed-wrap">
-      <RubriquesTabs :active="estPose ? 'pose' : 'edition'" />
+      <RubriquesTabs />
 
       <div class="ed-cols">
-        <SceneStrip v-if="estPose" :chosen="pose?.id || ''" @choose="id => (pose = findPose(id))" />
-        <BeforeAfterStrip v-else compact />
+        <BeforeAfterStrip v-if="!estPose" compact />
 
         <EditorStage :main="main" :busy="busy" :shown="shown" @file="setPhoto" @remove="main = null" @save="save" />
 
         <EditorPanel
           :variant="estPose ? 'pose' : 'edition'"
-          :chosen="chosen"
-          :cost="cout"
-          :can-generate="canGenerate"
+          v-model:mode="chosen"
+          v-model:text="description"
+          v-model:open="promptOpen"
+          :scene="pose?.id || null"
+          :busy="busy"
+          :can="canGenerate"
           :go-label="goLabel"
-          :pose-id="pose?.id || null"
-          @choose="chosen = $event"
-          @choose-pose="id => (pose = findPose(id))"
-          @generate="generate"
+          @update:scene="id => (pose = findPose(id))"
+          @run="generate"
         />
       </div>
 
