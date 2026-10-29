@@ -2,7 +2,7 @@ import { buildPrompt, findMode, SUFFIX } from '~/utils/presets'
 import { findPose } from '~/utils/poses'
 
 const VENICE_URL = 'https://api.venice.ai/api/v1/image/edit'
-const MAX_BYTES = 24 * 1024 * 1024
+const MAX_BYTES = 8 * 1024 * 1024
 
 const ERREURS: Record<number, string> = {
   400: "La photo n'a pas pu être traitée. Essaie avec une autre image.",
@@ -31,14 +31,14 @@ export default defineEventHandler(async (event) => {
   const mode = findMode(body?.mode)
   const pose = findPose(body?.pose)
   const description = (body?.description || '').trim().slice(0, 800)
-  const perso = mode?.id === 'v1' ? description : ''
+  const perso = !pose && mode?.id === 'v1' ? description : ''
 
   const prompt = perso
     ? [perso, SUFFIX, pose?.prompt].filter(Boolean).join(' ').trim()
     : [buildPrompt(body?.mode), pose?.prompt].filter(Boolean).join(' ').trim()
 
   const model = mode?.model || veniceModel || 'qwen-image-2-edit'
-  const cost = mode?.cost || 10
+  const cost = pose ? 10 : (mode?.cost || 10)
 
   if (!prompt) throw createError({ statusCode: 400, statusMessage: 'Choisis un modèle.' })
 
@@ -48,11 +48,7 @@ export default defineEventHandler(async (event) => {
   if (image.length * 0.75 > MAX_BYTES) throw createError({ statusCode: 413, statusMessage: ERREURS[413] })
 
   try {
-    await saveShot(`data:image/jpeg;base64,${image}`, {
-      email: (sessionUser as any).email || '',
-      mode: mode?.id || '',
-      pose: pose?.id || '',
-    })
+    await saveShot({ email: (sessionUser as any).email || '', mode: mode?.id || '', pose: pose?.id || '' })
   } catch { /* le journal ne doit jamais bloquer une génération */ }
 
   const balance = await spendCredits(userId, cost)
