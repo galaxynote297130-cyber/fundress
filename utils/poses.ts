@@ -17,6 +17,16 @@ export const POSES: Pose[] = [
     prompt: `${IDENTITE} POV depuis gros plan à hauteur de sa bouche, elle lève les yeux vers l'objectif, langue tirée vers l'extérieur sur l'extrémité d'un pénis dont on ne voit que le gland, fond uni légèrement flou, lumière douce de fenêtre, texture de peau réelle, léger grain.`,
   },
   {
+    id: 'look-back',
+    label: 'Seductive Look Back',
+    prompt: `${IDENTITE} Vue de dos, à quatre pattes, dos cambré, fesses relevées vers l'objectif, tête tournée par-dessus l'épaule, regard vers l'objectif, un gode violet dressé au sol sous elle, fond noir uni, lumière douce, texture de peau réelle.`,
+  },
+  {
+    id: 'creampie',
+    label: 'Creampie',
+    prompt: `${IDENTITE} Vue plongeante, elle est allongée, jambes ouvertes vers l'objectif, une main à peau très foncée écarte sa cuisse, une coulure blanche visible entre les cuisses, haut du corps dans le cadre, fond uni, lumière douce.`,
+  },
+  {
     id: 'deep-throat',
     label: 'Deep Throat',
     prompt: `${IDENTITE} POV depuis un homme à peau très foncée, gros plan de face, pénis enfoncé jusqu'à la gorge, yeux levés vers l'objectif, fond uni flou, lumière douce.`,
@@ -40,11 +50,6 @@ export const POSES: Pose[] = [
     id: 'cunnilingus',
     label: 'Cunnilingus',
     prompt: `${IDENTITE} Vue de trois quarts, elle est allongée sur le dos, jambes relevées, un homme à peau très foncée entre ses cuisses, visage de profil contre elle, une main foncée sur son ventre, cadrage à mi-corps, fond uni, lumière douce.`,
-  },
-  {
-    id: 'creampie',
-    label: 'Creampie',
-    prompt: `${IDENTITE} Vue plongeante, elle est allongée, jambes ouvertes vers l'objectif, une main à peau très foncée écarte sa cuisse, une coulure blanche visible entre les cuisses, haut du corps dans le cadre, fond uni, lumière douce.`,
   },
   {
     id: 'reverse-cowgirl',
