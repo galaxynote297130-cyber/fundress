@@ -1,21 +1,23 @@
 <template>
-  <div class="page">
+  <div class="ed-app">
     <RubriquesTabs />
-    <div class="split">
-      <div class="stage">
-        <label v-if="!src" class="drop">
-          <input type="file" accept="image/*" hidden @change="upload" />
-          Choisir une photo
-        </label>
-        <div v-else class="frame">
-          <img :src="src" alt="" />
-          <button class="clear" @click="reset">Changer</button>
+    <div class="ed-wrap">
+      <div class="psplit">
+        <div class="pstage">
+          <label v-if="!src" class="pdrop">
+            <input type="file" accept="image/*" hidden @change="upload" />
+            Choisir une photo
+          </label>
+          <div v-else>
+            <img :src="src" alt="" class="pframe" />
+            <button class="pclear" @click="reset">Changer</button>
+          </div>
+          <video v-if="out" :src="out" controls autoplay loop playsinline class="pframe" />
         </div>
-        <video v-if="out" :src="out" controls autoplay loop playsinline class="frame" />
+        <VideoPanel v-model:duration="duration" v-model:move="move" :can="!!src && !busy" :busy="busy" @run="run" />
       </div>
-      <VideoPanel v-model:duration="duration" v-model:move="move" :can="!!src && !busy" :busy="busy" @run="run" />
+      <p v-if="error" class="perr">{{ error }}</p>
     </div>
-    <p v-if="error" class="err">{{ error }}</p>
   </div>
 </template>
 
