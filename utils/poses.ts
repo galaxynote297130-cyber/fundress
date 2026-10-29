@@ -9,7 +9,7 @@ export const POSES: Pose[] = [
   {
     id: 'cum-on-face',
     label: 'Cum on Face',
-    prompt: `${IDENTITE} Très gros plan sur son visage, elle regarde l'objectif, langue tirée, quelques traces blanches sur la joue, une main à peau très foncée posée sur son front, fond uni flou, lumière douce de fenêtre, texture de peau réelle.`,
+    prompt: `${IDENTITE} depuis gros plan à hauteur de sa bouche, elle lève les yeux vers l'objectif, POV gros plan sur son visage, elle regarde l'objectif, langue tirée, quelques traces blanches de sperme sur la joue, fond uni flou, lumière douce.`,
   },
   {
     id: 'blowjob',
