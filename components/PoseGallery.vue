@@ -14,36 +14,27 @@ const gradients = [
 </script>
 
 <template>
-  <div class="app">
-    <SiteTop />
+  <div class="bloc">
+    <p class="hint">Choisis une scène et envoie ta photo. Le visage, la morphologie et le décor sont conservés.</p>
 
-    <main class="wrap">
-      <RubriquesTabs active="pose" />
+    <div class="grid">
+      <NuxtLink to="/edition" class="card custom">
+        <span class="title">Custom Prompt</span>
+        <span class="box">Décris toi-même la scène</span>
+      </NuxtLink>
 
-      <p class="hint">Choisis une scène et envoie ta photo. Le visage, la morphologie et le décor sont conservés.</p>
-
-      <div class="grid">
-        <NuxtLink to="/edition" class="card custom">
-          <span class="title">Custom Prompt</span>
-          <span class="box">Décris toi-même la scène</span>
-        </NuxtLink>
-
-        <NuxtLink v-for="(p, i) in liste" :key="p.id" :to="`/edition?pose=${p.id}`" class="card">
-          <span class="title">{{ p.label }}</span>
-          <span class="box" :style="{ background: gradients[i % gradients.length] }">
-            <img v-if="!broken[p.id]" :src="`/poses/${p.id}.webp`" :alt="p.label" loading="lazy" decoding="async" @error="broken[p.id] = true">
-          </span>
-        </NuxtLink>
-      </div>
-
-      <SiteFooter />
-    </main>
+      <NuxtLink v-for="(p, i) in liste" :key="p.id" :to="`/pose/${p.id}`" class="card">
+        <span class="title">{{ p.label }}</span>
+        <span class="box" :style="{ background: gradients[i % gradients.length] }">
+          <img v-if="!broken[p.id]" :src="`/poses/${p.id}.webp`" :alt="p.label" loading="lazy" decoding="async" @error="broken[p.id] = true">
+        </span>
+      </NuxtLink>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.app { min-height: 100dvh; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); }
-.wrap { flex: 1; display: flex; flex-direction: column; gap: 14px; max-width: 1100px; width: 100%; margin: 0 auto; padding: 0 max(14px, env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left)); }
+.bloc { display: flex; flex-direction: column; gap: 10px; }
 .hint { font-size: .82rem; color: var(--muted); margin: 0; }
 .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 .card { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 7px; }
