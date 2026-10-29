@@ -1,7 +1,5 @@
 <script setup lang="ts">
-// Bandeau d'exemples avant / après.
-// La première vignette alterne entre V1 et V2, synchronisée sur le balayage.
-// La seconde reste fixe, mise en avant en V2.
+// Bandeau d'exemples avant / après. Chaque vignette mène à l'onglet d'édition.
 import { ref, onMounted, onUnmounted } from 'vue'
 import { demoScene } from '~/utils/demoScenes'
 
@@ -48,7 +46,7 @@ onUnmounted(() => {
       <small>Deux rendus du même modèle</small>
     </div>
     <div class="row">
-      <div v-for="e in items" :key="e.id" class="ba">
+      <NuxtLink v-for="e in items" :key="e.id" to="/edition" class="ba" title="Essayer sur ma photo">
         <div class="frame" :class="{ highlight: !e.alt }">
           <img :src="e.avant" alt="Avant" loading="lazy" decoding="async">
           <div class="after">
@@ -64,7 +62,7 @@ onUnmounted(() => {
           <span v-if="e.alt" class="ver small">V{{ e.v + 1 }}</span>
           <span v-else class="ver">V2</span>
         </div>
-      </div>
+      </NuxtLink>
     </div>
   </div>
 </template>
@@ -75,8 +73,9 @@ onUnmounted(() => {
 .head span { font-size: .6rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: var(--accent); }
 .head small { font-size: .62rem; color: var(--muted); }
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.ba { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.ba { min-width: 0; display: flex; flex-direction: column; gap: 5px; text-decoration: none; color: inherit; }
 .frame { position: relative; aspect-ratio: 3 / 4; border-radius: 9px; overflow: hidden; background: var(--sunk); }
+.ba:hover .frame { box-shadow: 0 0 0 2px var(--accent); }
 .frame.highlight { box-shadow: 0 0 0 2px var(--accent); }
 .frame > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
 .after { position: absolute; inset: 0; clip-path: inset(0 0 0 50%); animation: wipe 5s linear infinite; }
