@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { POSES } from '~/utils/poses'
 
 // Quatre presets seulement en accueil, les plus parlants.
-const CHOIX = ['cum-on-face', 'blowjob', 'cunnilingus', 'creampie']
+const CHOIX = ['cum-on-face', 'blowjob', 'look-back', 'creampie']
 const liste = computed(() => CHOIX.map(id => POSES.find(p => p.id === id)).filter(Boolean) as typeof POSES)
 
 const broken = ref<Record<string, boolean>>({})
