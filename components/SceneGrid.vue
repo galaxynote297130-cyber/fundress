@@ -1,8 +1,14 @@
 <template>
-  <div class="pgrid">
-    <button v-for="p in POSES" :key="p.id" class="psc" :class="{ on: scene === p.id }" @click="$emit('pick', p.id)">
+  <div class="prail">
+    <button
+      v-for="p in POSES"
+      :key="p.id"
+      class="prsc"
+      :class="{ on: scene === p.id }"
+      @click="$emit('pick', p.id)"
+    >
       <img :src="`/poses/${p.id}.webp`" alt="" loading="lazy" />
-      {{ p.label }}
+      <span>{{ p.label }}</span>
     </button>
   </div>
 </template>
