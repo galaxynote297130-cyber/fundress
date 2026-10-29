@@ -1,7 +1,8 @@
 <template>
   <div class="ed-app">
-    <RubriquesTabs />
+    <SiteTop />
     <div class="ed-wrap">
+      <RubriquesTabs />
       <div class="split">
         <div class="stage">
           <label v-if="!src" class="drop">
@@ -43,7 +44,13 @@
       </div>
 
       <p v-if="error" class="err">{{ error }}</p>
+      <div class="ed-privacy">
+        <span>Wan 3.0</span><span>Aucun abonnement</span><span>Photo conservée 1 h sur ton appareil</span>
+      </div>
+      <SiteFooter />
     </div>
+    <AuthModal />
+    <CreditsModal />
   </div>
 </template>
 
