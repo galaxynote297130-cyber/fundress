@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, watch } from 'vue'
 
-defineProps<{ main: any; busy: boolean; shown: any }>()
+const props = defineProps<{ main: any; busy: boolean; shown: any }>()
 const emit = defineEmits<{ file: [File]; remove: []; save: [] }>()
 
 const over = ref(false)
 const input = ref<HTMLInputElement | null>(null)
+const voir = ref(false)
+
+watch(() => props.shown, () => { voir.value = false })
+
+const src = computed(() => {
+  if (props.shown && !voir.value) return props.shown.url
+  return props.main?.url
+})
 
 function pick(e: Event) {
   const el = e.target as HTMLInputElement
@@ -30,17 +38,16 @@ function drop(e: DragEvent) {
       <input ref="input" type="file" accept="image/*" class="ed-sr" @change="pick">
     </div>
 
-    <div v-else class="ed-paire">
-      <div class="ed-cadre has">
-        <img :src="main.url" alt="Ta photo">
-        <button class="ed-trash" type="button" title="Retirer" @click="$emit('remove')">✕</button>
+    <div v-else class="ed-cadre" :class="{ done: shown && !voir }">
+      <img :src="src" alt="Aperçu">
+      <button class="ed-trash" type="button" title="Retirer" @click="$emit('remove')">✕</button>
+      <div v-if="shown" class="ed-bar">
+        <button class="ed-tog" :class="{ on: voir }" type="button" @click="voir = !voir">
+          {{ voir ? 'Voir le résultat' : "Voir l'avant" }}
+        </button>
+        <button class="ed-dl" type="button" @click="$emit('save')">Télécharger</button>
       </div>
-      <div class="ed-cadre res" :class="{ done: shown }">
-        <img v-if="shown" :src="shown.url" alt="Résultat">
-        <span v-else class="ed-wait">Résultat</span>
-        <button v-if="shown && !busy" class="ed-dl" type="button" @click="$emit('save')">Télécharger</button>
-        <div v-if="busy" class="ed-busy"><span><i class="ed-dot" />En cours…</span></div>
-      </div>
+      <div v-if="busy" class="ed-busy"><span><i class="ed-dot" />En cours…</span></div>
     </div>
   </section>
 </template>
