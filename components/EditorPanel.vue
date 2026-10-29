@@ -58,18 +58,15 @@ function basculer() {
       </div>
 
       <button class="ed-pbtn" :class="{ on: ouvert }" type="button" @click="basculer">
-        <span>Prompt personnalisé</span>
+        <span>Prompt</span>
         <span>{{ ouvert ? '−' : '+' }}</span>
       </button>
 
-      <template v-if="ouvert">
-        <textarea
-          class="ed-field" :value="props.description" maxlength="800" rows="3"
-          placeholder="Décris ta propre scène…"
-          @input="emit('description', ($event.target as HTMLTextAreaElement).value)"
-        ></textarea>
-        <p class="ed-phint">Remplace le prompt V1. Le visage, la pose et le décor restent conservés.</p>
-      </template>
+      <textarea
+        v-if="ouvert" class="ed-field" :value="props.description" maxlength="800" rows="3"
+        placeholder="Décris ta propre scène…"
+        @input="emit('description', ($event.target as HTMLTextAreaElement).value)"
+      ></textarea>
     </template>
 
     <button class="ed-create" :disabled="!props.canGenerate" @click="$emit('generate')">{{ goLabel }}</button>
