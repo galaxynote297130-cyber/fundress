@@ -29,6 +29,8 @@ function generate() {
   runGenerate({ mode: estPose.value ? 'v2' : chosen.value, pose: pose.value?.id, cout: cout.value, label: pose.value?.label })
 }
 
+useHead({ link: [{ rel: 'stylesheet', href: '/editor.css' }] })
+
 onMounted(init)
 </script>
 
@@ -67,7 +69,3 @@ onMounted(init)
     <div v-if="message" class="ed-toast" :class="{ error: message.error }" role="status">{{ message.text }}</div>
   </div>
 </template>
-
-<style>
-@import url('/editor.css');
-</style>
