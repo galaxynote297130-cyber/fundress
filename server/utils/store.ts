@@ -1,16 +1,17 @@
 // Comptes utilisateurs et crédits.
 // Stockage : useStorage('db') → dossier .data/db en local (voir nuxt.config.ts).
 
-export const FREE_CREDITS = 1 // crédits offerts à l'inscription
+export const FREE_CREDITS = 10 // crédits offerts à l'inscription
 
-// Coût d'une génération
-export const COSTS: Record<string, number> = { '1K': 1 }
+// Coût d'une génération selon le moteur
+export const COSTS: Record<string, number> = { v1: 5, v2: 10 }
 
-// Packs vendus via Stripe (prix en centimes d'euro)
+// Packs vendus via Stripe (prix en centimes d'euro). `was` sert de prix barré.
 export const PACKS = [
-  { id: 'p10', credits: 10, price: 899, label: '10 crédits' },
-  { id: 'p40', credits: 40, price: 3199, label: '40 crédits' },
-  { id: 'p100', credits: 100, price: 7499, label: '100 crédits', best: true },
+  { id: 'p5', credits: 5, price: 99, label: '5 crédits' },
+  { id: 'p100', credits: 100, price: 899, label: '100 crédits', was: 1798 },
+  { id: 'p400', credits: 400, price: 3199, label: '400 crédits', was: 7998 },
+  { id: 'p1000', credits: 1000, price: 7499, label: '1000 crédits', was: 24999, best: true },
 ]
 
 export type User = {
