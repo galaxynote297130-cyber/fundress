@@ -5,6 +5,8 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { demoScene } from '~/utils/demoScenes'
 
+const props = defineProps<{ compact?: boolean }>()
+
 const DUREE = 5000
 const DECALAGE = 1600
 
@@ -40,7 +42,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="showcase" aria-label="Exemples avant / après">
+  <div class="showcase" :class="{ compact: props.compact }" aria-label="Exemples avant / après">
     <div class="head">
       <span>Avant / après</span>
       <small>Deux rendus du même modèle</small>
@@ -59,8 +61,8 @@ onUnmounted(() => {
           <span class="line" />
           <span class="lbl l">Avant</span>
           <span class="lbl r">Après</span>
-          <span v-if="e.alt" class="ver small">Fundress V{{ e.v + 1 }}</span>
-          <span v-else class="ver">{{ e.badge || 'Fundress V2' }}</span>
+          <span v-if="e.alt" class="ver small">V{{ e.v + 1 }}</span>
+          <span v-else class="ver">V2</span>
         </div>
       </div>
     </div>
@@ -68,14 +70,13 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.showcase { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 10px; }
-.head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
-.head span { font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; font-weight: 700; color: var(--accent); }
-.head small { font-size: .7rem; color: var(--muted); }
-.row { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
-.row::-webkit-scrollbar { display: none; }
-.ba { flex: 0 0 260px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.frame { position: relative; aspect-ratio: 3 / 4; border-radius: 12px; overflow: hidden; background: var(--sunk); }
+.showcase { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 8px; display: flex; flex-direction: column; gap: 7px; }
+.head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.head span { font-size: .6rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: var(--accent); }
+.head small { font-size: .62rem; color: var(--muted); }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ba { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.frame { position: relative; aspect-ratio: 3 / 4; border-radius: 9px; overflow: hidden; background: var(--sunk); }
 .frame.highlight { box-shadow: 0 0 0 2px var(--accent); }
 .frame > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
 .after { position: absolute; inset: 0; clip-path: inset(0 0 0 50%); animation: wipe 5s linear infinite; }
@@ -85,20 +86,24 @@ onUnmounted(() => {
 .line { position: absolute; top: 0; bottom: 0; left: 0; width: 2px; background: #fff; box-shadow: 0 0 4px rgba(0, 0, 0, .5); animation: line 5s linear infinite; }
 .ba:nth-child(2) .after, .ba:nth-child(2) .line { animation-delay: -1.6s; }
 @keyframes wipe {
-  0% { clip-path: inset(0 100% 0 0); }
+  0%, 26% { clip-path: inset(0 100% 0 0); }
   88%, 100% { clip-path: inset(0 0 0 0); }
 }
 @keyframes line {
-  0% { left: 0; }
+  0%, 26% { left: 0; }
   88%, 100% { left: 100%; }
 }
-.lbl { position: absolute; top: 8px; font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #fff; background: rgba(10, 12, 18, .65); padding: 3px 8px; border-radius: 6px; backdrop-filter: blur(4px); }
-.lbl.l { left: 8px; }
-.lbl.r { right: 8px; }
-.ver { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); font-size: .66rem; font-weight: 800; letter-spacing: .04em; color: var(--accent-ink); background: var(--accent); padding: 4px 12px; border-radius: 99px; white-space: nowrap; }
-.ver.small { font-size: .6rem; padding: 3px 9px; }
-@media (min-width: 900px) {
-  .ba { flex: 1 1 0; max-width: 300px; }
+.lbl { position: absolute; top: 5px; font-size: .5rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #fff; background: rgba(10, 12, 18, .6); padding: 2px 5px; border-radius: 5px; backdrop-filter: blur(4px); }
+.lbl.l { left: 5px; }
+.lbl.r { right: 5px; }
+.ver { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); font-size: .52rem; font-weight: 800; letter-spacing: .03em; color: var(--accent-ink); background: var(--accent); padding: 2px 7px; border-radius: 99px; white-space: nowrap; }
+.ver.small { padding: 2px 6px; }
+@media (min-width: 820px) {
+  .showcase.compact { gap: 6px; }
+  .showcase.compact .head { flex-direction: column; align-items: flex-start; gap: 0; }
+  .showcase.compact .head small { display: none; }
+  .showcase.compact .row { display: flex; flex-direction: column; gap: 6px; }
+  .showcase.compact .ba { flex: 1 1 auto; }
 }
 @media (prefers-reduced-motion: reduce) {
   .after, .line { animation: none; }
