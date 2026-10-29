@@ -18,23 +18,28 @@ const pose = ref(
 
 const cout = computed(() => {
   if (estPose.value) return 10
-  return (MODES.find(m => m.id === chosen.value)?.cost || 5) + (pose.value ? 5 : 0)
+  if (pose.value) return 10
+  return MODES.find(m => m.id === chosen.value)?.cost || 5
+})
+const recap = computed(() => {
+  if (estPose.value) return 'scène fixe'
+  if (pose.value) return 'scène · ' + (pose.value.label || '')
+  return chosen.value.toUpperCase() + ' · modèle'
 })
 const canGenerate = computed(() => !!main.value && !busy.value)
 const goLabel = computed(() => {
   if (busy.value) return 'En cours…'
-  if (estPose.value && !pose.value) return 'Choisis une scène'
   if (!me.value) return 'Créer un compte · 1 image offerte'
   if (main.value && me.value.credits < cout.value) return 'Crédits insuffisants'
   return 'Générer'
 })
 
 function generate() {
-  if (estPose.value && !pose.value) return notify('Choisis une scène.', true)
+  const enScene = estPose.value || !!pose.value
   runGenerate({
-    mode: estPose.value ? 'v2' : chosen.value,
+    mode: enScene ? 'v2' : chosen.value,
     pose: pose.value?.id,
-    description: promptOpen.value ? description.value : '',
+    description: !enScene && promptOpen.value ? description.value : '',
     cout: cout.value,
     label: pose.value?.label
   })
@@ -65,6 +70,8 @@ onMounted(init)
           :busy="busy"
           :can="canGenerate"
           :go-label="goLabel"
+          :cost="cout"
+          :recap="recap"
           @update:scene="id => (pose = findPose(id))"
           @run="generate"
         />
