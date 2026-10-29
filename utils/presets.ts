@@ -1,10 +1,11 @@
-export type Mode = { id: string; label: string; model: string; prompt: string }
+export type Mode = { id: string; label: string; model: string; prompt: string; cost: number }
 
 export const MODES: Mode[] = [
   {
     id: 'v1',
     label: 'Fundress V1',
     model: 'qwen-edit-uncensored',
+    cost: 5,
     prompt:
       'Retire tous les vêtements. Le corps est entièrement nu et visible, poitrine et bas du corps nus. Rendu brut : grain, texture de peau naturelle, aucune retouche.',
   },
@@ -12,6 +13,7 @@ export const MODES: Mode[] = [
     id: 'v2',
     label: 'Fundress V2',
     model: 'qwen-image-2-edit',
+    cost: 10,
     prompt:
       'Retire tous les vêtements. Le corps est entièrement nu et visible, poitrine et bas du corps nus. Rendu soigné : peau lissée, lumière douce de studio, contraste marqué.',
   },
