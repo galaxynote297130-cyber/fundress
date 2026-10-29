@@ -25,7 +25,8 @@ export function useEditor() {
     if (Math.min(bmp.width, bmp.height) < 256) throw new Error('Image trop petite (256 px minimum).')
     const k = Math.min(1, MAX_SIDE / Math.max(bmp.width, bmp.height))
     const c = document.createElement('canvas')
-    c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k)
+    c.width = Math.round(bmp.width * k)
+    c.height = Math.round(bmp.height * k)
     c.getContext('2d')!.drawImage(bmp, 0, 0, c.width, c.height)
     const data = c.toDataURL('image/jpeg', 0.92)
     return { url: data, data, name }
@@ -40,7 +41,9 @@ export function useEditor() {
         notify('Photo ajoutée. Crée un compte pour ta génération offerte.')
         authOpen.value = 'register'
       }
-    } catch (e: any) { notify(e?.message || 'Impossible de lire cette image.', true) }
+    } catch (e: any) {
+      notify(e?.message || 'Impossible de lire cette image.', true)
+    }
   }
 
   async function save() {
@@ -52,10 +55,12 @@ export function useEditor() {
       try { await nav.share({ files: [file] }); return } catch { /* annulé */ }
     }
     const a = document.createElement('a')
-    a.href = shown.value.url; a.download = file.name; a.click()
+    a.href = shown.value.url
+    a.download = file.name
+    a.click()
   }
 
-  async function runGenerate(o: { mode: string; pose?: string; cout: number; label?: string }) {
+  async function runGenerate(o: { mode: string; pose?: string; description?: string; cout: number; label?: string }) {
     if (busy.value || !main.value) return
     if (!me.value) { authOpen.value = 'register'; return }
     if (me.value.credits < o.cout) { buyOpen.value = true; return }
@@ -64,7 +69,12 @@ export function useEditor() {
       const res = await fetch('/api/edit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: main.value.data, mode: o.mode, pose: o.pose }),
+        body: JSON.stringify({
+          image: main.value.data,
+          mode: o.mode,
+          pose: o.pose,
+          description: o.description || ''
+        })
       })
       if (!res.ok) {
         const err = await res.json().catch(() => null)
@@ -79,8 +89,11 @@ export function useEditor() {
       if (results.value.length > 20) URL.revokeObjectURL(results.value.shift()!.url)
       current.value = results.value.length - 1
       notify('Image générée')
-    } catch (e: any) { notify(e?.message || 'La génération a échoué.', true) }
-    finally { busy.value = false }
+    } catch (e: any) {
+      notify(e?.message || 'La génération a échoué.', true)
+    } finally {
+      busy.value = false
+    }
   }
 
   async function init() {
