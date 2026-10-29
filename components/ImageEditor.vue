@@ -30,11 +30,10 @@ const cout = computed(() => MODES.find(m => m.id === chosen.value)?.cost || 10)
 const canGenerate = computed(() => !!main.value && !!chosen.value && !busy.value)
 const goLabel = computed(() => {
   if (busy.value) return 'En cours…'
-  if (!main.value) return 'Ajoute une photo'
   if (estPose.value && !pose.value) return 'Choisis une scène'
   if (!me.value) return 'Créer un compte · 1 image offerte'
-  if (me.value.credits < cout.value) return 'Crédits insuffisants'
-  return 'Créer'
+  if (main.value && me.value.credits < cout.value) return 'Crédits insuffisants'
+  return 'Générer'
 })
 
 let t: ReturnType<typeof setTimeout> | undefined
@@ -143,7 +142,8 @@ onMounted(async () => {
       <RubriquesTabs :active="estPose ? 'pose' : 'edition'" />
 
       <div class="cols">
-        <BeforeAfterStrip compact />
+        <SceneStrip v-if="estPose" :chosen="pose?.id || ''" @choose="id => (pose = findPose(id))" />
+        <BeforeAfterStrip v-else compact />
 
         <section class="stage" @dragover.prevent="over = true" @dragleave="over = false" @drop.prevent="onDrop">
           <template v-if="!main">
