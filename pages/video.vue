@@ -6,7 +6,9 @@
         <div class="pstage">
           <label v-if="!src" class="pdrop">
             <input type="file" accept="image/*" hidden @change="upload" />
-            Choisir une photo
+            <span class="pup">＋</span>
+            <b>Ajouter une photo</b>
+            <span class="psub">JPG ou PNG · 256 px minimum</span>
           </label>
           <div v-else>
             <img :src="src" alt="" class="pframe" />
@@ -18,20 +20,50 @@
             <button class="pcancel" @click="cancel">Annuler et rembourser</button>
           </div>
         </div>
-        <VideoPanel v-model:duration="duration" v-model:move="move" :can="!!src && !busy" :busy="busy" @run="run" />
+        <VideoPanel
+          v-model:duration="duration"
+          v-model:ratio="ratio"
+          v-model:qualite="qualite"
+          :can="!!src && !busy"
+          :busy="busy"
+          :cout="20"
+          @run="run"
+        />
       </div>
+
+      <div class="vbas">
+        <div class="phead"><span class="pdot"></span><h3>Presets vidéo</h3><em>1 obligatoire</em></div>
+        <div class="prail">
+          <button
+            v-for="p in PRESETS"
+            :key="p.id"
+            class="prsc vpreset"
+            :class="{ on: preset === p.id }"
+            @click="preset = p.id"
+          >
+            <span class="pvic">{{ p.label.slice(0, 1) }}</span>
+            <b>{{ p.label }}</b>
+            <i>{{ p.note }}</i>
+          </button>
+        </div>
+      </div>
+
       <p v-if="error" class="perr">{{ error }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { PRESETS } from '~/utils/videoPresets'
+
 useHead({ title: 'Édition vidéo — Fundress', link: [{ rel: 'stylesheet', href: '/editor.css' }] })
 
 const src = ref('')
 const out = ref('')
 const duration = ref(5)
-const move = ref('lent')
+const ratio = ref('9:16')
+const qualite = ref('720p')
+const preset = ref<string | null>(null)
 const busy = ref(false)
 const error = ref('')
 const restant = ref(0)
@@ -47,6 +79,7 @@ function upload(e: Event) {
 function reset() { src.value = ''; out.value = ''; error.value = '' }
 
 async function run() {
+  if (!preset.value) return
   busy.value = true
   error.value = ''
   stop = false
@@ -54,7 +87,7 @@ async function run() {
   try {
     const { id, download } = await $fetch<{ id: string; download: string }>('/api/video', {
       method: 'POST',
-      body: { image: src.value, duration: duration.value, move: move.value }
+      body: { image: src.value, duration: duration.value, ratio: ratio.value, qualite: qualite.value, preset: preset.value }
     })
     await poll(id, download)
   } catch (e: any) {
