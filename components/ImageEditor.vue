@@ -7,7 +7,6 @@ import { findPose } from '~/utils/poses'
 const { me, authOpen, buyOpen, refresh, confirmPayment, setCredits } = useAccount()
 const route = useRoute()
 const MAX_SIDE = 2048
-const cost = 1
 type Slot = { url: string; data: string; name: string }
 type Result = { url: string; label: string }
 
@@ -22,12 +21,13 @@ const shown = computed(() => results.value[current.value] || null)
 const chosen = ref(DEFAULT_MODE)
 const pose = ref(findPose(String(route.query.pose || '')))
 
+const cout = computed(() => MODES.find(m => m.id === chosen.value)?.cost || 10)
 const canGenerate = computed(() => !!main.value && !!chosen.value && !busy.value)
 const goLabel = computed(() => {
   if (busy.value) return 'En cours…'
   if (!main.value) return 'Ajoute une photo'
   if (!me.value) return 'Se connecter pour générer'
-  if (me.value.credits < cost) return 'Recharger des crédits'
+  if (me.value.credits < cout.value) return 'Crédits insuffisants'
   return 'Générer'
 })
 
@@ -69,7 +69,7 @@ async function generate() {
   if (busy.value || !main.value) return
   if (!chosen.value) return notify('Choisis un modèle.', true)
   if (!me.value) { authOpen.value = 'register'; return }
-  if (me.value.credits < cost) { buyOpen.value = true; return }
+  if (me.value.credits < cout.value) { buyOpen.value = true; return }
   busy.value = true
   try {
     const res = await fetch('/api/edit', {
@@ -93,14 +93,6 @@ async function generate() {
     notify('Image générée')
   } catch (e: any) { notify(e?.message || 'La génération a échoué.', true) }
   finally { busy.value = false }
-}
-
-async function reuse() {
-  if (!shown.value) return
-  const blob = await (await fetch(shown.value.url)).blob()
-  main.value = await readImage(blob, 'résultat')
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-  notify('Résultat placé à gauche, prêt à être retouché')
 }
 
 async function save() {
@@ -166,10 +158,6 @@ onMounted(async () => {
             <div v-if="busy" class="busy"><span><i class="dot" />En cours…</span></div>
           </div>
         </div>
-        <div class="after-bar">
-          <button class="ghost" :disabled="!shown || busy" @click="reuse">Retoucher</button>
-          <button class="ghost go2" :disabled="!canGenerate" @click="generate">Régénérer</button>
-        </div>
         <div v-if="results.length > 1" class="strip">
           <button v-for="(r, i) in results" :key="r.url" class="thumb" :class="{ on: i === current }" :title="r.label" @click="current = i">
             <img :src="r.url" alt=""><small>{{ r.label }}</small>
@@ -177,13 +165,12 @@ onMounted(async () => {
         </div>
         <div class="perks">
           <div class="perk"><b>Rendu photoréaliste</b><span>Pose, décor et lumière conservés au pixel près</span></div>
-          <div class="perk"><b>1 crédit par image</b><span>Pas d'abonnement, les crédits ne périment pas</span></div>
+          <div class="perk"><b>5 ou 10 crédits l'image</b><span>Pas d'abonnement, les crédits ne périment pas</span></div>
           <div class="perk"><b>Prêt en quelques secondes</b><span>Deux modèles au choix, résultat immédiat</span></div>
         </div>
-        <PricingPacks />
         <SiteFooter />
       </section>
-      <Composer :chosen="chosen" :can-generate="canGenerate" :go-label="goLabel" :pose-label="pose?.label || null" @choose="chosen = $event" @generate="generate" @remove-pose="pose = null" />
+      <Composer :cost="cout" :chosen="chosen" :can-generate="canGenerate" :go-label="goLabel" :pose-label="pose?.label || null" @choose="chosen = $event" @generate="generate" @remove-pose="pose = null" />
     </main>
     <AuthModal />
     <CreditsModal />
@@ -193,7 +180,7 @@ onMounted(async () => {
 
 <style scoped>
 .app { min-height: 100dvh; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); }
-.layout { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 0 max(14px, env(safe-area-inset-right, 0px)) calc(210px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
+.layout { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 0 max(14px, env(safe-area-inset-right, 0px)) calc(240px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
 .left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .privacy { display: flex; flex-wrap: wrap; gap: 6px; font-size: .72rem; color: var(--muted); }
 .privacy span { display: inline-flex; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 99px; padding: 5px 10px; }
@@ -207,7 +194,6 @@ onMounted(async () => {
 .drop.out.done { border-color: var(--accent); }
 .drop.out .badge { background: var(--surface); color: var(--muted); }
 .drop img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
-.after-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 12px; }
 .badge { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 1.3rem; background: var(--accent); color: var(--accent-ink); }
 .empty strong { font-family: var(--f-display); font-size: 1.05rem; line-height: 1.2; margin-top: 4px; }
@@ -229,10 +215,7 @@ onMounted(async () => {
 .perk { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; }
 .perk b { font-family: var(--f-display); font-size: .82rem; line-height: 1.2; }
 .perk span { font-size: .72rem; color: var(--muted); line-height: 1.3; }
-.ghost { min-height: 44px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-weight: 500; font-size: .85rem; }
-.ghost:disabled { opacity: .45; }
-.go2 { border-color: var(--accent); color: var(--accent); font-weight: 700; }
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(230px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 12px; z-index: 20; max-width: calc(100% - 28px); text-align: center; font-weight: 500; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(250px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 12px; z-index: 20; max-width: calc(100% - 28px); text-align: center; font-weight: 500; }
 .toast.error { background: var(--danger); color: #fff; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); opacity: 0; }
 @media (max-width: 560px) { .perks { grid-template-columns: 1fr; } }
