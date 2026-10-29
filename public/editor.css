@@ -43,7 +43,6 @@
 .ed-toast.error{background:var(--danger);color:#fff}
 @media(min-width:820px){
   .ed-cols{display:grid;grid-template-columns:128px 1fr 200px;align-items:start}
-  .ed-cols .row,.ed-cols .liste{align-items:center}
-  .ed-cols .ba{max-width:128px !important}
-  .ed-cols .sc{max-width:118px}
+  .ed-cols .ba{width:100%;max-width:128px !important}
+  .ed-cols .sc{width:100%;max-width:118px}
 }
