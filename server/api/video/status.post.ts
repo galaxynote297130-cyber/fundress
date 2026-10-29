@@ -1,6 +1,10 @@
+import { addCredits } from '../../../server/utils/store'
+
 const MODEL = 'wan-3-0-image-to-video'
+const COUT = 20
 
 export default defineEventHandler(async (event) => {
+  const user = await requireUserSession(event)
   const body = await readBody<{ id: string; download?: string }>(event)
   if (!body?.id) throw createError({ statusCode: 400, statusMessage: 'Identifiant manquant' })
 
@@ -14,7 +18,6 @@ export default defineEventHandler(async (event) => {
   })
 
   const type = res.headers.get('content-type') || ''
-
   if (type.includes('video/')) return { status: 'done', url: body.download || '' }
   if (!type.includes('json')) return { status: 'processing' }
 
@@ -23,5 +26,7 @@ export default defineEventHandler(async (event) => {
 
   if (raw === 'COMPLETED') return { status: 'done', url: body.download || json.download_url || '' }
   if (raw === 'PROCESSING' || raw === 'QUEUED') return { status: 'processing' }
-  return { status: 'failed', message: json?.error || raw }
+
+  const restant = await addCredits(user.user.id, COUT)
+  return { status: 'failed', refunded: true, restant, message: json?.error || raw }
 })
