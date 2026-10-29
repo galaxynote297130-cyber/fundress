@@ -16,7 +16,7 @@ const gradients = [
 <template>
   <aside class="bloc" aria-label="Scènes">
     <span class="head">Scènes</span>
-    <div class="row">
+    <div class="liste">
       <button
         v-for="(p, i) in POSES" :key="p.id" type="button" class="sc"
         :class="{ on: chosen === p.id }" @click="$emit('choose', p.id)"
@@ -33,13 +33,18 @@ const gradients = [
 <style scoped>
 .bloc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:8px;display:flex;flex-direction:column;gap:6px}
 .head{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--accent)}
-.row{display:flex;gap:7px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;padding-bottom:2px}
-.row::-webkit-scrollbar{display:none}
+.liste{display:flex;gap:7px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;padding-bottom:2px}
+.liste::-webkit-scrollbar{display:none}
 .sc{flex:0 0 104px;scroll-snap-align:start;display:flex;flex-direction:column;gap:4px;background:none;border:0;padding:0;font-family:inherit;cursor:pointer}
-.thumb{aspect-ratio:1/1;border-radius:8px;overflow:hidden;border:1px solid transparent;display:block}
+.thumb{aspect-ratio:1/1;border-radius:8px;overflow:hidden;border:1px solid transparent;display:block;background:var(--sunk)}
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .sc.on .thumb{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
 .nom{font-size:.56rem;color:var(--muted);text-align:center;line-height:1.2}
 .sc.on .nom{color:var(--accent);font-weight:700}
-@media(min-width:820px){.sc{flex:0 0 96px}}
+@media(min-width:820px){
+  .bloc{padding:10px;gap:8px}
+  .liste{flex-direction:column;gap:8px;overflow-x:visible;overflow-y:auto;max-height:calc(100dvh - 220px);scroll-snap-type:y proximity}
+  .sc{flex:1 1 auto;scroll-snap-align:start}
+  .nom{font-size:.58rem}
+}
 </style>
