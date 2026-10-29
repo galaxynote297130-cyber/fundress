@@ -1,11 +1,14 @@
-// a) état
-const scene = ref<string | null>(null)
+<script setup lang="ts">
+const route = useRoute()
+const { public: { siteUrl } } = useRuntimeConfig()
 
-// b) sur <EditorPanel>, ajouter
-v-model:scene="scene"
-:busy="busy"
-:can="!!photo && !busy"
-@run="generate"
+useHead({
+  title: "Outil d'édition d'image — Fundress",
+  meta: [{ name: 'description', content: "Deux moteurs au choix, rendu photoréaliste, téléchargement immédiat." }],
+  link: [{ rel: 'canonical', href: `${siteUrl}${route.path}` }],
+})
+</script>
 
-// c) dans le corps du POST vers /api/edit, ajouter
-scene: scene.value
+<template>
+  <ImageEditor />
+</template>
