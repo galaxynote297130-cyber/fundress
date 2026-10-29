@@ -7,6 +7,7 @@
     </NuxtLink>
     <NuxtLink to="/edition" class="tab" :class="{ on: route.path.startsWith('/edition') }">Édition</NuxtLink>
     <NuxtLink to="/video" class="tab" :class="{ on: route.path.startsWith('/video') }">Vidéo</NuxtLink>
+    <NuxtLink to="/galerie" class="tab" :class="{ on: route.path.startsWith('/galerie') }">Galerie</NuxtLink>
   </nav>
 </template>
 
@@ -15,8 +16,8 @@ const route = useRoute()
 </script>
 
 <style scoped>
-.tabs { display: flex; gap: 6px; align-items: center; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,.08); }
-.tab { flex: 1; text-align: center; font-size: 13px; padding: 8px 10px; border-radius: 9px; color: #b9b3c9; text-decoration: none; }
+.tabs { display: flex; gap: 5px; align-items: center; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.tab { flex: 1; text-align: center; font-size: 12px; padding: 8px 4px; border-radius: 9px; color: #b9b3c9; text-decoration: none; }
 .tab.on { background: rgba(255,255,255,.1); color: #fff; }
-.home { flex: 0 0 40px; display: grid; place-items: center; padding: 6px; }
+.home { flex: 0 0 38px; display: grid; place-items: center; padding: 6px; }
 </style>
