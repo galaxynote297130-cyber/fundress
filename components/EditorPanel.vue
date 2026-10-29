@@ -2,49 +2,27 @@
   <aside class="ed-panel">
     <template v-if="variant === 'pose'">
       <div class="phead"><h3>Scène</h3></div>
-      <div class="pgrid">
-        <button v-for="p in POSES" :key="p.id" class="psc" :class="{ on: scene === p.id }" @click="pick(p.id)">
-          <img :src="`/poses/${p.id}.webp`" alt="" loading="lazy" />
-          {{ p.label }}
-        </button>
-      </div>
+      <SceneGrid :scene="scene" @pick="pick" />
     </template>
 
     <template v-else>
       <div class="phead"><span class="pnum">1</span><h3>Modèle</h3><em v-if="scene">désactivé</em></div>
-      <button
-        class="plvl"
-        :class="{ on: mode === 'v1' && !scene, pdim: !!scene || open }"
-        :disabled="open"
-        @click="chooseMode('v1')"
-      >
+      <button class="plvl" :class="{ on: mode === 'v1' && !scene, pdim: !!scene || open }" :disabled="open" @click="chooseMode('v1')">
         <span class="pradio"></span>
-        <span class="ptxt"><b>Fundress V1</b><i>Déshabillage progressif, garde un sous-vêtement</i></span>
+        <span class="ptxt"><b>V1</b><i>Progressif, garde un sous-vêtement</i></span>
         <span class="pprice">5</span>
       </button>
-      <button
-        class="plvl"
-        :class="{ on: mode === 'v2' && !scene, pdim: !!scene || open }"
-        :disabled="open"
-        @click="chooseMode('v2')"
-      >
+      <button class="plvl" :class="{ on: mode === 'v2' && !scene, pdim: !!scene || open }" :disabled="open" @click="chooseMode('v2')">
         <span class="pradio"></span>
-        <span class="ptxt"><b>Fundress V2</b><i>Déshabillage complet, nu intégral</i></span>
+        <span class="ptxt"><b>V2</b><i>Complet, nu intégral</i></span>
         <span class="pprice">10</span>
       </button>
 
-      <button class="pprompt" :class="{ on: open, pdim: !!scene }" :disabled="!!scene" @click="toggle">
-        Prompt personnalisé
-      </button>
-      <textarea v-if="open" :value="text" rows="3" placeholder="Décris le rendu souhaité…" @input="$emit('update:text', ($event.target as HTMLTextAreaElement).value)" />
+      <button class="pprompt" :class="{ on: open, pdim: !!scene }" :disabled="!!scene" @click="toggle">Prompt perso</button>
+      <textarea v-if="open" :value="text" rows="3" placeholder="Décris le rendu…" @input="$emit('update:text', ($event.target as HTMLTextAreaElement).value)" />
 
-      <div class="phead mt"><span class="pnum">2</span><h3>Scène <em>exclusif · 10 crédits</em></h3></div>
-      <div class="pgrid">
-        <button v-for="p in POSES" :key="p.id" class="psc" :class="{ on: scene === p.id }" @click="pick(p.id)">
-          <img :src="`/poses/${p.id}.webp`" alt="" loading="lazy" />
-          {{ p.label }}
-        </button>
-      </div>
+      <div class="phead mt"><span class="pnum">2</span><h3>Scène <em>exclusif</em></h3></div>
+      <SceneGrid :scene="scene" @pick="pick" />
     </template>
 
     <div class="pbar">
@@ -55,8 +33,6 @@
 </template>
 
 <script setup lang="ts">
-import { POSES, findPose } from '~/utils/poses'
-
 const props = defineProps<{
   variant: 'edition' | 'pose'
   mode: 'v1' | 'v2'
@@ -66,6 +42,8 @@ const props = defineProps<{
   busy: boolean
   can: boolean
   goLabel: string
+  cost: number
+  recap: string
 }>()
 
 const emit = defineEmits<{
@@ -76,11 +54,21 @@ const emit = defineEmits<{
   run: []
 }>()
 
-const cost = computed(() => {
-  if (props.variant === 'pose') return 10
-  if (props.scene) return 10
-  return props.mode === 'v2' ? 10 : 5
-})
-
-const recap = computed(() => {
-  if (props.variant === 'pose') return 'sc
+function chooseMode(m: 'v1' | 'v2') {
+  emit('update:mode', m)
+  emit('update:scene', null)
+}
+function toggle() {
+  const next = !props.open
+  emit('update:open', next)
+  if (next) {
+    emit('update:mode', 'v1')
+    emit('update:scene', null)
+  }
+}
+function pick(id: string) {
+  if (props.scene === id) return emit('update:scene', null)
+  emit('update:scene', id)
+  emit('update:open', false)
+}
+</script>
