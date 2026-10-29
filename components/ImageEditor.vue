@@ -24,7 +24,7 @@ const cout = computed(() => {
 const recap = computed(() => {
   if (estPose.value) return 'scène fixe'
   if (pose.value) return 'scène · ' + (pose.value.label || '')
-  return chosen.value.toUpperCase() + ' · modèle'
+  return chosen.value === 'v1' ? 'Base · modèle' : 'Photoréaliste · modèle'
 })
 const canGenerate = computed(() => !!main.value && !busy.value)
 const goLabel = computed(() => {
@@ -78,7 +78,7 @@ onMounted(init)
       </div>
 
       <div class="ed-privacy">
-        <span>Paiement sécurisé par Stripe</span><span>Aucun abonnement</span><span>Photo supprimée après usage</span>
+        <span>Paiement sécurisé par Stripe</span><span>Aucun abonnement</span><span>Photo conservée 1 h sur ton appareil</span>
       </div>
       <SiteFooter />
     </main>
