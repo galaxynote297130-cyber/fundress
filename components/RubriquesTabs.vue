@@ -1,33 +1,22 @@
-<script setup lang="ts">
-defineProps<{ active: 'accueil' | 'edition' | 'pose' }>()
-</script>
-
 <template>
-  <nav class="tabs" aria-label="Navigation">
-    <NuxtLink to="/" class="tab home" :class="{ on: active === 'accueil' }" aria-label="Accueil" title="Accueil">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z" /></svg>
+  <nav class="tabs">
+    <NuxtLink to="/" class="tab home" aria-label="Accueil">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 11l9-8 9 8" /><path d="M5 10v10h14V10" />
+      </svg>
     </NuxtLink>
-    <NuxtLink to="/edition" class="tab" :class="{ on: active === 'edition' }">
-      <span>Édition</span>
-      <strong>Modifier ma photo</strong>
-    </NuxtLink>
-    <NuxtLink to="/pose" class="tab" :class="{ on: active === 'pose' }">
-      <span>Pose</span>
-      <strong>Changer la pose</strong>
-    </NuxtLink>
+    <NuxtLink to="/edition" class="tab" :class="{ on: route.path.startsWith('/edition') }">Édition</NuxtLink>
+    <NuxtLink to="/video" class="tab" :class="{ on: route.path.startsWith('/video') }">Vidéo</NuxtLink>
   </nav>
 </template>
 
+<script setup lang="ts">
+const route = useRoute()
+</script>
+
 <style scoped>
-.tabs { display: flex; align-items: stretch; gap: 6px; }
-.tab { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 1px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); text-decoration: none; color: var(--fg); }
-.tab span { font-size: .58rem; letter-spacing: .09em; text-transform: uppercase; font-weight: 700; color: var(--muted); }
-.tab strong { font-size: .8rem; font-weight: 700; }
-.tab.home { flex: 0 0 34px; align-items: center; padding: 0; border-radius: 9px; color: var(--muted); }
-.tab.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, var(--surface)); }
-.tab.on span, .tab.home.on { color: var(--accent); }
-@media (max-width: 400px) {
-  .tab strong { font-size: .74rem; }
-  .tab.home { flex: 0 0 30px; }
-}
+.tabs { display: flex; gap: 6px; align-items: center; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.tab { flex: 1; text-align: center; font-size: 13px; padding: 8px 10px; border-radius: 9px; color: #b9b3c9; text-decoration: none; }
+.tab.on { background: rgba(255,255,255,.1); color: #fff; }
+.home { flex: 0 0 40px; display: grid; place-items: center; padding: 6px; }
 </style>
