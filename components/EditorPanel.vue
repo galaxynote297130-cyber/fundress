@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { MODES } from '~/utils/presets'
 import { POSES } from '~/utils/poses'
 
@@ -9,9 +10,22 @@ const props = defineProps<{
   canGenerate: boolean
   goLabel: string
   poseId: string | null
+  description: string
 }>()
 
-defineEmits<{ choose: [string]; choosePose: [string]; generate: [] }>()
+const emit = defineEmits<{ choose: [string]; choosePose: [string]; generate: []; description: [string] }>()
+
+const ouvert = ref(false)
+
+function basculer() {
+  if (ouvert.value) {
+    ouvert.value = false
+    emit('description', '')
+    return
+  }
+  emit('choose', 'v1')
+  ouvert.value = true
+}
 </script>
 
 <template>
@@ -30,22 +44,33 @@ defineEmits<{ choose: [string]; choosePose: [string]; generate: [] }>()
       </select>
     </label>
 
-    <div v-else>
-      <span class="ed-lab">Description <em class="ed-soon">à venir</em></span>
-      <div class="ed-field">Décris ta propre scène…</div>
-    </div>
-
-    <div v-if="props.variant !== 'pose'">
-      <span class="ed-lab">Modèle</span>
-      <div class="ed-modes">
-        <button
-          v-for="m in MODES" :key="m.id" type="button"
-          :class="{ on: props.chosen === m.id }" @click="$emit('choose', m.id)"
-        >
-          {{ m.label.replace('Fundress ', '') }}<small>{{ m.cost }} crédits</small>
-        </button>
+    <template v-else>
+      <div>
+        <span class="ed-lab">Modèle</span>
+        <div class="ed-modes">
+          <button
+            v-for="m in MODES" :key="m.id" type="button"
+            :class="{ on: props.chosen === m.id }" :disabled="ouvert" @click="$emit('choose', m.id)"
+          >
+            {{ m.label.replace('Fundress ', '') }}<small>{{ m.cost }} crédits</small>
+          </button>
+        </div>
       </div>
-    </div>
+
+      <button class="ed-pbtn" :class="{ on: ouvert }" type="button" @click="basculer">
+        <span>Prompt personnalisé</span>
+        <span>{{ ouvert ? '−' : '+' }}</span>
+      </button>
+
+      <template v-if="ouvert">
+        <textarea
+          class="ed-field" :value="props.description" maxlength="800" rows="3"
+          placeholder="Décris ta propre scène…"
+          @input="emit('description', ($event.target as HTMLTextAreaElement).value)"
+        ></textarea>
+        <p class="ed-phint">Remplace le prompt V1. Le visage, la pose et le décor restent conservés.</p>
+      </template>
+    </template>
 
     <button class="ed-create" :disabled="!props.canGenerate" @click="$emit('generate')">{{ goLabel }}</button>
     <p v-if="props.variant === 'pose'" class="ed-prix">{{ props.cost }} crédits par image</p>
