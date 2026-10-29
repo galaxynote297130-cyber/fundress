@@ -12,6 +12,7 @@ export function useEditor() {
   const current = ref(-1)
   const shown = computed(() => results.value[current.value] || null)
   const { me, authOpen, buyOpen, refresh, confirmPayment, setCredits } = useAccount()
+  const { put } = useGallery()
 
   let t: any
   function notify(text: string, error = false) {
@@ -88,6 +89,7 @@ export function useEditor() {
       results.value.push({ url: URL.createObjectURL(blob), label: o.label || 'résultat' })
       if (results.value.length > 20) URL.revokeObjectURL(results.value.shift()!.url)
       current.value = results.value.length - 1
+      put({ id: crypto.randomUUID(), kind: 'image', label: o.label || 'image', cout: o.cout, blob }).catch(() => {})
       notify('Image générée')
     } catch (e: any) {
       notify(e?.message || 'La génération a échoué.', true)
