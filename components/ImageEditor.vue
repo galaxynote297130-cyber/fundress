@@ -2,7 +2,10 @@
 // build
 import { ref, computed, onMounted } from 'vue'
 import { MODES, DEFAULT_MODE } from '~/utils/presets'
-import { findPose } from '~/utils/poses'
+import { POSES, findPose } from '~/utils/poses'
+
+const props = defineProps<{ variant?: 'edition' | 'pose'; poseId?: string }>()
+const estPose = computed(() => props.variant === 'pose')
 
 const { me, authOpen, buyOpen, refresh, confirmPayment, setCredits } = useAccount()
 const route = useRoute()
@@ -11,6 +14,7 @@ type Slot = { url: string; data: string; name: string }
 type Result = { url: string; label: string }
 
 const main = ref<Slot | null>(null)
+const recents = ref<Slot[]>([])
 const over = ref(false)
 const busy = ref(false)
 const message = ref<{ text: string; error?: boolean } | null>(null)
@@ -19,16 +23,19 @@ const results = ref<Result[]>([])
 const current = ref(-1)
 const shown = computed(() => results.value[current.value] || null)
 const chosen = ref(DEFAULT_MODE)
-const pose = ref(findPose(String(route.query.pose || '')))
+const pose = ref(
+  findPose(props.poseId || String(route.query.pose || '')) || (props.variant === 'pose' ? POSES[0] : null)
+)
 
 const cout = computed(() => MODES.find(m => m.id === chosen.value)?.cost || 10)
 const canGenerate = computed(() => !!main.value && !!chosen.value && !busy.value)
 const goLabel = computed(() => {
   if (busy.value) return 'En cours…'
   if (!main.value) return 'Ajoute une photo'
-  if (!me.value) return 'Se connecter pour générer'
+  if (estPose.value && !pose.value) return 'Choisis une scène'
+  if (!me.value) return 'Créer un compte · 1 image offerte'
   if (me.value.credits < cout.value) return 'Crédits insuffisants'
-  return 'Générer'
+  return 'Créer'
 })
 
 let t: ReturnType<typeof setTimeout> | undefined
@@ -49,11 +56,22 @@ async function readImage(f: File | Blob, name = 'image'): Promise<Slot> {
   return { url: data, data, name }
 }
 
+function memoriser(slot: Slot) {
+  recents.value = [slot, ...recents.value.filter(r => r.url !== slot.url)].slice(0, 6)
+}
+
 async function setPhoto(f?: File | null) {
   if (!f) return
   if (!f.type.startsWith('image/')) return notify("Ce fichier n'est pas une image.", true)
-  try { main.value = await readImage(f, f.name) }
-  catch (e: any) { notify(e?.message || 'Impossible de lire cette image.', true) }
+  try {
+    const slot = await readImage(f, f.name)
+    main.value = slot
+    memoriser(slot)
+    if (!me.value) {
+      notify('Photo ajoutée. Crée un compte pour ta génération offerte.')
+      authOpen.value = 'register'
+    }
+  } catch (e: any) { notify(e?.message || 'Impossible de lire cette image.', true) }
 }
 
 function onPick(e: Event) {
@@ -67,7 +85,7 @@ function onDrop(e: DragEvent) {
 
 async function generate() {
   if (busy.value || !main.value) return
-  if (!chosen.value) return notify('Choisis un modèle.', true)
+  if (estPose.value && !pose.value) return notify('Choisis une scène.', true)
   if (!me.value) { authOpen.value = 'register'; return }
   if (me.value.credits < cout.value) { buyOpen.value = true; return }
   busy.value = true
@@ -127,50 +145,57 @@ onMounted(async () => {
 <template>
   <div class="app">
     <SiteTop />
-    <main class="layout">
-      <section class="left">
-        <RubriquesTabs active="edition" />
-        <BeforeAfterStrip />
-        <div class="privacy">
-          <span>Paiement sécurisé par Stripe</span><span>Aucun abonnement</span><span>Photo supprimée après usage</span>
-        </div>
-        <div class="drops">
-          <label class="drop" :class="{ filled: main, over }" @dragover.prevent="over = true" @dragleave="over = false" @drop.prevent="onDrop">
-            <input ref="fileInput" type="file" accept="image/*" class="sr" @change="onPick">
-            <img v-if="main" :src="main.url" alt="Ta photo">
-            <span v-else class="empty">
-              <span class="badge">1</span><strong>Ta photo</strong><small>Touche pour choisir ou dépose ta photo ici</small>
-            </span>
-            <button v-if="main" class="trash" type="button" title="Retirer la photo" @click.prevent.stop="main = null">
-              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13M10 11v6M14 11v6" /></svg>
-            </button>
-            <span v-if="main" class="tag">Changer de photo</span>
-          </label>
-          <div class="drop out" :class="{ done: shown }">
-            <img v-if="shown" :src="shown.url" alt="Résultat">
-            <span v-else class="empty">
-              <span class="badge">2</span><strong>Résultat</strong><small>Ta photo modifiée apparaîtra ici</small>
-            </span>
-            <button v-if="shown && !busy" class="dl" type="button" @click="save">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4v11M7 11l5 5 5-5M5 20h14" /></svg>
-              Télécharger
-            </button>
-            <div v-if="busy" class="busy"><span><i class="dot" />En cours…</span></div>
-          </div>
-        </div>
-        <div v-if="results.length > 1" class="strip">
-          <button v-for="(r, i) in results" :key="r.url" class="thumb" :class="{ on: i === current }" :title="r.label" @click="current = i">
-            <img :src="r.url" alt=""><small>{{ r.label }}</small>
-          </button>
-        </div>
-        <div class="perks">
-          <div class="perk"><b>Rendu photoréaliste</b><span>Pose, décor et lumière conservés au pixel près</span></div>
-          <div class="perk"><b>5 ou 10 crédits l'image</b><span>Pas d'abonnement, les crédits ne périment pas</span></div>
-          <div class="perk"><b>Prêt en quelques secondes</b><span>Deux modèles au choix, résultat immédiat</span></div>
-        </div>
-        <SiteFooter />
-      </section>
-      <Composer :cost="cout" :chosen="chosen" :can-generate="canGenerate" :go-label="goLabel" :pose-label="pose?.label || null" @choose="chosen = $event" @generate="generate" @remove-pose="pose = null" />
+    <main class="wrap">
+      <RubriquesTabs :active="estPose ? 'pose' : 'edition'" />
+
+      <div class="cols">
+        <RecentStrip :items="recents" @pick="i => (main = recents[i])" />
+
+        <section class="stage" @dragover.prevent="over = true" @dragleave="over = false" @drop.prevent="onDrop">
+          <template v-if="!main">
+            <div class="dropzone">
+              <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.4" class="ico"><rect x="3" y="4" width="18" height="16" rx="2.5" /><circle cx="8.5" cy="9.5" r="1.6" /><path d="M4 17l5-5 4 4 3-2.5 4 3.5" /></svg>
+              <button class="upload" type="button" @click="fileInput?.click()">Télécharger une image</button>
+              <p>JPG, PNG ou WebP</p>
+              <input ref="fileInput" type="file" accept="image/*" class="sr" @change="onPick">
+            </div>
+          </template>
+
+          <template v-else>
+            <div class="paire">
+              <div class="cadre">
+                <img :src="main.url" alt="Ta photo">
+                <button class="trash" type="button" title="Retirer la photo" @click="main = null">
+                  <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13M10 11v6M14 11v6" /></svg>
+                </button>
+              </div>
+              <div class="cadre result" :class="{ done: shown }">
+                <img v-if="shown" :src="shown.url" alt="Résultat">
+                <span v-else class="attente">Résultat</span>
+                <button v-if="shown && !busy" class="dl" type="button" @click="save">Télécharger</button>
+                <div v-if="busy" class="busy"><span><i class="dot" />En cours…</span></div>
+              </div>
+            </div>
+          </template>
+        </section>
+
+        <EditorPanel
+          :variant="estPose ? 'pose' : 'edition'"
+          :chosen="chosen"
+          :cost="cout"
+          :can-generate="canGenerate"
+          :go-label="goLabel"
+          :pose-id="pose?.id || null"
+          @choose="chosen = $event"
+          @choose-pose="id => (pose = findPose(id))"
+          @generate="generate"
+        />
+      </div>
+
+      <div class="privacy">
+        <span>Paiement sécurisé par Stripe</span><span>Aucun abonnement</span><span>Photo supprimée après usage</span>
+      </div>
+      <SiteFooter />
     </main>
     <AuthModal />
     <CreditsModal />
@@ -180,48 +205,34 @@ onMounted(async () => {
 
 <style scoped>
 .app { min-height: 100dvh; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); }
-.layout { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 0 max(14px, env(safe-area-inset-right, 0px)) calc(240px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
-.left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.wrap { flex: 1; display: flex; flex-direction: column; gap: 12px; max-width: 1200px; width: 100%; margin: 0 auto; padding: 0 max(14px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
+.cols { display: flex; flex-direction: column; gap: 12px; }
+.stage { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); min-height: 260px; padding: 12px; display: grid; place-items: center; }
+.stage:hover { border-color: var(--line); }
+.dropzone { display: flex; flex-direction: column; align-items: center; gap: 9px; text-align: center; }
+.ico { color: var(--muted); opacity: .7; }
+.upload { border: 0; border-radius: 99px; background: var(--accent); color: var(--accent-ink); font-weight: 800; font-size: .82rem; padding: 11px 20px; }
+.dropzone p { margin: 0; font-size: .68rem; color: var(--muted); }
+.paire { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.cadre { position: relative; aspect-ratio: 3 / 4; border-radius: 10px; overflow: hidden; background: var(--sunk); display: grid; place-items: center; }
+.cadre.result { border: 1px solid var(--line); }
+.cadre.result.done { border-color: var(--accent); }
+.cadre img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
+.attente { font-size: .74rem; color: var(--muted); }
+.trash { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%; border: 0; background: #e5484d; color: #fff; display: grid; place-items: center; }
+.dl { position: absolute; left: 8px; right: 8px; bottom: 8px; min-height: 36px; border: 0; border-radius: 9px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: .78rem; }
+.busy { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--sunk) 55%, transparent); backdrop-filter: blur(3px); }
+.busy span { background: var(--surface); border: 1px solid var(--line); padding: 9px 14px; border-radius: 99px; display: flex; gap: 8px; align-items: center; font-size: .78rem; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: .25; } }
 .privacy { display: flex; flex-wrap: wrap; gap: 6px; font-size: .72rem; color: var(--muted); }
 .privacy span { display: inline-flex; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 99px; padding: 5px 10px; }
 .privacy span::before { content: "✓"; color: #22c55e; font-weight: 800; margin-right: 5px; }
-.drops { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.drop { position: relative; flex: 1; aspect-ratio: 3 / 4; border: 2px dashed var(--line); border-radius: var(--r); background: var(--surface); display: grid; place-items: center; overflow: hidden; cursor: pointer; transition: border-color .15s, background .15s; }
-.drop:hover, .drop.over { border-color: var(--mask); background: color-mix(in srgb, var(--mask) 8%, var(--surface)); }
-.drop:focus-within { outline: 2px solid var(--mask); outline-offset: 2px; }
-.drop.filled { border-style: solid; border-color: var(--line); background: var(--sunk); }
-.drop.out, .drop.out:hover { cursor: default; border-style: solid; border-color: var(--line); background: var(--sunk); }
-.drop.out.done { border-color: var(--accent); }
-.drop.out .badge { background: var(--surface); color: var(--muted); }
-.drop img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
-.empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 12px; }
-.badge { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 1.3rem; background: var(--accent); color: var(--accent-ink); }
-.empty strong { font-family: var(--f-display); font-size: 1.05rem; line-height: 1.2; margin-top: 4px; }
-.empty small { color: var(--muted); font-size: .8rem; line-height: 1.3; }
-.tag { position: absolute; left: 8px; bottom: 8px; right: 8px; background: rgba(10, 12, 18, .72); color: #fff; font-size: .72rem; padding: 5px 8px; border-radius: 8px; text-align: center; backdrop-filter: blur(4px); }
-.trash { position: absolute; top: 8px; right: 8px; z-index: 3; width: 34px; height: 34px; border-radius: 50%; border: 0; background: #e5484d; color: #fff; display: grid; place-items: center; box-shadow: 0 2px 8px rgba(0, 0, 0, .35); }
-.trash:hover { background: #c93d42; }
-.dl { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 3; min-height: 38px; border: 0; border-radius: 9px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: .82rem; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 10px rgba(0, 0, 0, .3); }
-.busy { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--sunk) 55%, transparent); backdrop-filter: blur(3px); }
-.busy span { background: var(--surface); border: 1px solid var(--line); padding: 10px 16px; border-radius: 99px; display: flex; gap: 8px; align-items: center; font-weight: 500; }
-.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); animation: pulse 1s infinite; }
-@keyframes pulse { 50% { opacity: .25; } }
-.strip { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; }
-.thumb { flex: 0 0 auto; width: 84px; border: 0; padding: 0; background: none; text-align: left; scroll-snap-align: start; display: flex; flex-direction: column; gap: 3px; }
-.thumb img { width: 84px; height: 84px; object-fit: cover; border-radius: 8px; border: 2px solid transparent; }
-.thumb.on img { border-color: var(--accent); }
-.thumb small { font-size: .7rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.perks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.perk { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; }
-.perk b { font-family: var(--f-display); font-size: .82rem; line-height: 1.2; }
-.perk span { font-size: .72rem; color: var(--muted); line-height: 1.3; }
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(250px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 12px; z-index: 20; max-width: calc(100% - 28px); text-align: center; font-weight: 500; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 24px; background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 12px; z-index: 20; max-width: calc(100% - 28px); text-align: center; font-weight: 500; }
 .toast.error { background: var(--danger); color: #fff; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); opacity: 0; }
-@media (max-width: 560px) { .perks { grid-template-columns: 1fr; } }
-@media (min-width: 900px) {
-  .layout { flex-direction: row; align-items: flex-start; max-width: 1200px; width: 100%; margin: 0 auto; padding-bottom: 24px; }
-  .left { flex: 1; }
-  .toast { bottom: 24px; }
+@media (min-width: 820px) {
+  .cols { display: grid; grid-template-columns: 140px 1fr 210px; align-items: start; }
+  .stage { min-height: 360px; }
 }
 </style>
