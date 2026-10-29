@@ -69,5 +69,5 @@ onMounted(init)
 </template>
 
 <style>
-@import '~/assets/editor.css';
+@import url('/editor.css');
 </style>
