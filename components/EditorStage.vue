@@ -31,7 +31,7 @@ function drop(e: DragEvent) {
     </div>
 
     <div v-else class="ed-paire">
-      <div class="ed-cadre">
+      <div class="ed-cadre has">
         <img :src="main.url" alt="Ta photo">
         <button class="ed-trash" type="button" title="Retirer" @click="$emit('remove')">✕</button>
       </div>
