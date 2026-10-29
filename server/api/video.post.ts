@@ -1,30 +1,47 @@
 import { spendCredits } from '../../server/utils/store'
+import { findPreset } from '~/utils/videoPresets'
 
 const MODEL = 'wan-3-0-image-to-video'
-const MOVE_PROMPT: Record<string, string> = {
-  lent: 'slow subtle camera drift, gentle natural breathing motion',
-  zoom: 'slow cinematic push-in toward the subject',
-  marche: 'the subject takes a few steps forward toward the camera'
-}
 
 export default defineEventHandler(async (event) => {
   const user = await requireUserSession(event)
-  const body = await readBody<{ image: string; duration: number; move: string }>(event)
+  const body = await readBody<{ image: string; duration: number; ratio?: string; qualite?: string; preset?: string }>(event)
   if (!body?.image) throw createError({ statusCode: 400, statusMessage: 'Photo manquante' })
 
-  await spendCredits(user.user.id, 20)
+  const preset = findPreset(body.preset)
+  if (!preset) throw createError({ statusCode: 400, statusMessage: 'Choisis un preset.' })
 
-  const res = await $fetch<any>('https://api.venice.ai/api/v1/video/queue', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${useRuntimeConfig().veniceApiKey}` },
-    body: {
-      model: MODEL,
-      prompt: `Animate this photo. ${MOVE_PROMPT[body.move] || MOVE_PROMPT.lent}. Keep the same woman, her face, her body, her clothes and the background perfectly consistent. No morphing, no warping, no extra limbs.`,
-      duration: body.duration === 10 ? '10s' : '5s',
-      resolution: '720p',
-      image_url: body.image
-    }
-  })
+  const duree = body.duration === 10 ? '10s' : '5s'
+  const ratio = body.ratio === '16:9' ? '16:9' : '9:16'
+  const qualite = ['480p', '720p', '1080p'].includes(body.qualite || '') ? body.qualite! : '720p'
+  const key = useRuntimeConfig().veniceApiKey
 
-  return { id: res.queue_id, download: res.download_url || '' }
+  let res: any
+  try {
+    res = await $fetch<any>('https://api.venice.ai/api/v1/video/queue', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${key}` },
+      body: {
+        model: MODEL,
+        prompt: preset.prompt,
+        duration: duree,
+        resolution: qualite,
+        aspect_ratio: ratio,
+        image_url: body.image
+      }
+    })
+  } catch {
+    throw createError({ statusCode: 502, statusMessage: 'Le service vidéo ne répond pas. Aucun crédit débité.' })
+  }
+
+  if (!res?.queue_id) {
+    throw createError({ statusCode: 502, statusMessage: 'La vidéo n’a pas pu être lancée. Aucun crédit débité.' })
+  }
+
+  const balance = await spendCredits(user.user.id, 20)
+  if (balance === null) {
+    throw createError({ statusCode: 402, statusMessage: 'Crédits insuffisants. Recharge ton compte pour continuer.' })
+  }
+
+  return { id: res.queue_id, download: res.download_url || '', restant: balance }
 })
