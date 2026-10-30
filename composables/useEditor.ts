@@ -89,8 +89,8 @@ export function useEditor() {
       results.value.push({ url: URL.createObjectURL(blob), label: o.label || 'résultat' })
       if (results.value.length > 20) URL.revokeObjectURL(results.value.shift()!.url)
       current.value = results.value.length - 1
-      put({ id: crypto.randomUUID(), kind: 'image', label: o.label || 'image', cout: o.cout, blob }).catch(() => {})
-      notify('Image générée')
+      put({ id: `${Date.now()}-${Math.round(Math.random() * 1e6)}`, kind: 'image', label: o.label || 'image', cout: o.cout, blob }).catch(() => {})
+      notify('Image générée · ajoutée à la galerie')
     } catch (e: any) {
       notify(e?.message || 'La génération a échoué.', true)
     } finally {
@@ -104,15 +104,4 @@ export function useEditor() {
     if (q.get('paiement') === 'ok' && q.get('session_id')) {
       try {
         const r = await confirmPayment(q.get('session_id')!)
-        notify(r.paid ? `Paiement reçu : +${r.credits} crédits` : 'Paiement en attente de confirmation.')
-      } catch (e: any) { notify(e.message, true) }
-    } else if (q.get('paiement') === 'annule') {
-      notify('Paiement annulé. Aucun montant n’a été débité.')
-    } else if (q.get('erreur') === 'google') {
-      notify('La connexion avec Google a échoué. Réessaie ou utilise ton email.', true)
-    }
-    if (q.toString()) history.replaceState(null, '', location.pathname)
-  }
-
-  return { me, main, busy, message, shown, notify, setPhoto, save, runGenerate, init }
-}
+        notify(r.paid ? `Paiement reçu : +${r.credits} crédits` : 'P
