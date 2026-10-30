@@ -1,6 +1,6 @@
 <template>
   <div class="ed-app">
-    <RubriquesTabs />
+    <SiteTop />
     <div class="ed-wrap">
       <h1 class="titre">Galerie</h1>
       <p class="intro">
@@ -8,14 +8,12 @@
         en cas de fermeture du navigateur ou d'un problème de connexion tu pourras y accéder pendant 1 heure.
       </p>
       <p v-if="erreur" class="err">{{ erreur }}</p>
-
       <div class="filters">
         <button class="f" :class="{ on: filtre === 'tout' }" @click="filtre = 'tout'">Tout</button>
         <button class="f" :class="{ on: filtre === 'image' }" @click="filtre = 'image'">Images</button>
         <button class="f" :class="{ on: filtre === 'video' }" @click="filtre = 'video'">Vidéos</button>
         <button v-if="items.length" class="f vide" @click="clear">Tout supprimer</button>
       </div>
-
       <div v-if="!items.length" class="vide">
         <div class="ico">＋</div>
         <b>Rien pour l’instant</b>
@@ -25,7 +23,6 @@
           <NuxtLink to="/video" class="go ghost">Créer une vidéo</NuxtLink>
         </div>
       </div>
-
       <div v-else class="grid">
         <GalleryCard v-for="i in visibles" :key="i.id" :item="i" @remove="remove" />
       </div>
