@@ -1,4 +1,4 @@
-import { spendCredits } from '../../server/utils/store'
+import { spendCredits, markSpent } from '../../server/utils/store'
 import { findPreset } from '~/utils/videoPresets'
 
 const MODEL = 'wan-3-0-image-to-video'
