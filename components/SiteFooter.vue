@@ -4,7 +4,7 @@
       <NuxtLink to="/cgu">CGU</NuxtLink>
       <NuxtLink to="/confidentialite">Confidentialité</NuxtLink>
       <NuxtLink to="/mentions-legales">Mentions légales</NuxtLink>
-      <a href="mailto:contact@fundress.app">Contact</a>
+      <a href="mailto:contact@xpicture.app">Contact</a>
     </nav>
   </footer>
 </template>
