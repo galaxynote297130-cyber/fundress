@@ -1,4 +1,4 @@
-import { addCredits } from '../../../server/utils/store'
+import { addCredits, refundOnce, markSpent } from '../../../server/utils/store'
 
 const MODEL = 'wan-3-0-image-to-video'
 const COUT = 20
@@ -18,15 +18,26 @@ export default defineEventHandler(async (event) => {
   })
 
   const type = res.headers.get('content-type') || ''
-  if (type.includes('video/')) return { status: 'done', url: body.download || '' }
+  if (type.includes('video/')) {
+    await markSpent(body.id, user.user.id, COUT)
+    return { status: 'done', url: body.download || '' }
+  }
   if (!type.includes('json')) return { status: 'processing' }
 
   const json = await res.json().catch(() => ({} as any))
   const raw = String(json?.status || '')
 
-  if (raw === 'COMPLETED') return { status: 'done', url: body.download || json.download_url || '' }
+  if (raw === 'COMPLETED') {
+    await markSpent(body.id, user.user.id, COUT)
+    return { status: 'done', url: body.download || json.download_url || '' }
+  }
   if (raw === 'PROCESSING' || raw === 'QUEUED') return { status: 'processing' }
 
-  const restant = await addCredits(user.user.id, COUT)
-  return { status: 'failed', refunded: true, restant, message: json?.error || raw }
+  const restant = await refundOnce(body.id, user.user.id, COUT)
+  return {
+    status: 'failed',
+    refunded: restant !== null,
+    restant: restant ?? undefined,
+    message: json?.error || raw
+  }
 })
