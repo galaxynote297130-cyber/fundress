@@ -2,11 +2,18 @@ import { spendCredits, markSpent } from '../../server/utils/store'
 import { findPreset } from '~/utils/videoPresets'
 
 const MODEL = 'wan-3-0-image-to-video'
+const COUT = 20
+const MAX_BYTES = 8 * 1024 * 1024
 
 export default defineEventHandler(async (event) => {
   const user = await requireUserSession(event)
   const body = await readBody<{ image: string; duration: number; ratio?: string; qualite?: string; preset?: string }>(event)
   if (!body?.image) throw createError({ statusCode: 400, statusMessage: 'Photo manquante' })
+
+  const image = body.image.replace(/^data:image\/[\w.+-]+;base64,/, '')
+  if (image.length * 0.75 > MAX_BYTES) {
+    throw createError({ statusCode: 413, statusMessage: 'Image trop lourde : 8 Mo maximum' })
+  }
 
   const preset = findPreset(body.preset)
   if (!preset) throw createError({ statusCode: 400, statusMessage: 'Choisis un preset.' })
@@ -38,10 +45,12 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 502, statusMessage: 'La vidéo n’a pas pu être lancée. Aucun crédit débité.' })
   }
 
-  const balance = await spendCredits(user.user.id, 20)
+  const balance = await spendCredits(user.user.id, COUT)
   if (balance === null) {
     throw createError({ statusCode: 402, statusMessage: 'Crédits insuffisants. Recharge ton compte pour continuer.' })
   }
+
+  await markSpent(res.queue_id, user.user.id, COUT)
 
   return { id: res.queue_id, download: res.download_url || '', restant: balance }
 })
