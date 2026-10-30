@@ -31,7 +31,6 @@
           @run="run"
         />
       </div>
-
       <div class="bas">
         <div class="bhead"><span class="dot"></span><h3>Presets vidéo</h3><em>1 obligatoire</em></div>
         <div class="rail">
@@ -42,7 +41,6 @@
           </button>
         </div>
       </div>
-
       <p v-if="error" class="err">{{ error }}</p>
       <div class="ed-privacy">
         <span>Wan 3.0</span><span>Aucun abonnement</span><span>Photo conservée 1 h sur ton appareil</span>
@@ -68,6 +66,9 @@ const preset = ref<string | null>(null)
 const busy = ref(false)
 const error = ref('')
 const restant = ref(0)
+const jobId = ref('')
+const { put } = useGallery()
+
 let stop = false
 
 function upload(e: Event) {
@@ -77,7 +78,13 @@ function upload(e: Event) {
   r.onload = () => { src.value = String(r.result); out.value = '' }
   r.readAsDataURL(f)
 }
-function reset() { src.value = ''; out.value = ''; error.value = '' }
+
+function reset() {
+  src.value = ''
+  out.value = ''
+  error.value = ''
+  jobId.value = ''
+}
 
 async function run() {
   if (!preset.value) return
@@ -90,6 +97,7 @@ async function run() {
       method: 'POST',
       body: { image: src.value, duration: duration.value, ratio: ratio.value, qualite: qualite.value, preset: preset.value }
     })
+    jobId.value = id
     await poll(id, download)
   } catch (e: any) {
     if (!stop) error.value = e?.data?.statusMessage || 'La génération a échoué. Tes crédits ont été rendus.'
@@ -100,9 +108,22 @@ async function run() {
 
 async function cancel() {
   stop = true
-  await $fetch('/api/video/cancel', { method: 'POST', body: {} }).catch(() => {})
+  if (jobId.value) {
+    await $fetch('/api/video/cancel', { method: 'POST', body: { id: jobId.value } }).catch(() => {})
+  }
   busy.value = false
   error.value = 'Vidéo annulée, crédits rendus.'
+}
+
+async function keep(id: string, url: string) {
+  const label = PRESETS.find(p => p.id === preset.value)?.label || 'Vidéo'
+  try {
+    const r = await fetch(url)
+    const blob = await r.blob()
+    await put({ id, kind: 'video', label, cout: 20, duree: `${duration.value} s`, blob })
+  } catch {
+    await put({ id, kind: 'video', label, cout: 20, duree: `${duration.value} s`, url })
+  }
 }
 
 async function poll(id: string, download: string) {
@@ -111,7 +132,11 @@ async function poll(id: string, download: string) {
     if (stop) return
     restant.value = 240 - i * 4
     const s = await $fetch<any>('/api/video/status', { method: 'POST', body: { id, download } })
-    if (s.status === 'done' && s.url) { out.value = s.url; return }
+    if (s.status === 'done' && s.url) {
+      out.value = s.url
+      await keep(id, s.url)
+      return
+    }
     if (s.status === 'failed') throw new Error('failed')
   }
 }
