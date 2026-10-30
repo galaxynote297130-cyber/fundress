@@ -104,4 +104,16 @@ export function useEditor() {
     if (q.get('paiement') === 'ok' && q.get('session_id')) {
       try {
         const r = await confirmPayment(q.get('session_id')!)
-        notify(r.paid ? `Paiement reçu : +${r.credits} crédits` : 'P
+        notify(
+          r.paid ? `Paiement reçu : +${r.credits} crédits` : 'Paiement en cours de vérification…',
+          !r.paid
+        )
+        if (r.paid) history.replaceState({}, '', '/edition')
+      } catch (e: any) {
+        notify(`Vérification du paiement impossible : ${e?.message || 'erreur serveur'}`, true)
+      }
+    }
+  }
+
+  return { me, main, busy, message, results, current, shown, notify, setPhoto, save, runGenerate, init }
+}
