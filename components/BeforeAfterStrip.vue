@@ -1,5 +1,6 @@
 <script setup lang="ts">
-// Bandeau d'exemples avant / après. Chaque vignette mène à l'onglet d'édition.
+// Bandeau d'exemples avant / après. Chaque vignette mène à l'onglet d'édition,
+// et l'en-tête mène à l'outil vidéo.
 import { ref, onMounted, onUnmounted } from 'vue'
 import { demoScene } from '~/utils/demoScenes'
 
@@ -9,11 +10,12 @@ const DUREE = 5000
 const DECALAGE = 1600
 
 const EXEMPLES = [
-  { id: 'plage', avant: '/exemple-1-avant.webp', apres: ['/exemple-1-apres.webp', '/exemple-3-apres.webp'], alt: true, badge: '' },
-  { id: 'studio', avant: '/exemple-4-avant.webp.webp', apres: ['/exemple-4-apres.webp.webp'], alt: false, badge: 'Fundress V2' },
+  { id: 'plage', avant: '/exemple-1-avant.webp', apres: ['/exemple-1-apres.webp', '/exemple-3-apres.webp'], alt: true, badge: '', to: '/edition' },
+  { id: 'studio', avant: '/exemple-4-avant.webp.webp', apres: ['/exemple-4-apres.webp.webp'], alt: false, badge: 'Fundress V2', to: '/edition' },
 ]
 
-type Item = { id: string; avant: string; apres: string[]; alt: boolean; badge: string; v: number }
+type Item = { id: string; avant: string; apres: string[]; alt: boolean; badge: string; to: string; v: number }
+
 const items = ref<Item[]>([])
 const minuteurs: any[] = []
 
@@ -24,8 +26,10 @@ onMounted(() => {
     apres: e.apres.map(a => a || demoScene(e.id, true)),
     alt: e.alt,
     badge: e.badge,
+    to: e.to,
     v: 0,
   }))
+
   items.value.forEach((e, i) => {
     if (e.alt === false) return
     minuteurs.push(setTimeout(() => {
@@ -43,10 +47,10 @@ onUnmounted(() => {
   <div class="showcase" :class="{ compact: props.compact }" aria-label="Exemples avant apres">
     <div class="head">
       <span>Avant / après</span>
-      <small>Deux rendus du même modèle</small>
+      <NuxtLink to="/video" class="vlink">Essayer en vidéo →</NuxtLink>
     </div>
     <div class="row">
-      <NuxtLink v-for="e in items" :key="e.id" to="/edition" :class="e.alt ? 'ba' : 'ba hi'" title="Essayer sur ma photo">
+      <NuxtLink v-for="e in items" :key="e.id" :to="e.to" :class="e.alt ? 'ba' : 'ba hi'" title="Essayer sur ma photo">
         <div class="frame">
           <img :src="e.avant" alt="Avant" loading="lazy" decoding="async">
           <div class="after">
@@ -69,7 +73,8 @@ onUnmounted(() => {
 .showcase{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:8px;display:flex;flex-direction:column;gap:7px}
 .head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
 .head span{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--accent)}
-.head small{font-size:.62rem;color:var(--muted)}
+.vlink{font-size:.62rem;color:var(--muted);text-decoration:none;white-space:nowrap}
+.vlink:hover{color:var(--accent)}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .ba{min-width:0;display:flex;flex-direction:column;gap:5px;text-decoration:none;color:inherit}
 .frame{position:relative;aspect-ratio:3/4;border-radius:9px;overflow:hidden;background:var(--sunk)}
@@ -89,10 +94,9 @@ onUnmounted(() => {
 .ver{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);font-size:.52rem;font-weight:800;color:var(--accent-ink);background:var(--accent);padding:2px 7px;border-radius:99px;white-space:nowrap}
 @media(min-width:820px){
   .row{display:flex;gap:10px}
-  .row .ba{flex:0 1 180px;max-width:180px}
+  .row .ba{flex:0 0 180px;max-width:180px}
   .showcase.compact{padding:10px;gap:8px}
   .showcase.compact .head{flex-direction:column;align-items:flex-start;gap:0}
-  .showcase.compact .head small{display:none}
   .showcase.compact .row{display:flex;flex-direction:column;gap:8px}
   .showcase.compact .row .ba{flex:1 1 auto;max-width:none}
 }
