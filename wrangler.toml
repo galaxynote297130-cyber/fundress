@@ -1,4 +1,4 @@
-# Configuration Cloudflare Pages pour FUNDRESS.
+# Configuration Cloudflare Pages pour XPICTURE.
 # Lie automatiquement le stockage et active la compatibilité Node :
 # rien à régler à la main dans Settings > Bindings ni dans Compatibility flags.
 # Les secrets (clé Venice, etc.) se saisissent toujours dans le tableau de bord Cloudflare.
@@ -7,6 +7,10 @@ name = "fundress"
 pages_build_output_dir = "dist"
 compatibility_date = "2024-12-24"
 compatibility_flags = ["nodejs_compat"]
+
+# URL publique, reprise dans les balises canoniques et les aperçus de partage
+[vars]
+NUXT_PUBLIC_SITE_URL = "https://xpicture.app"
 
 # Comptes, crédits et paiements
 [[kv_namespaces]]
