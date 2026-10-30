@@ -1,4 +1,4 @@
-import { addCredits } from '../../../server/utils/store'
+import { refundOnce } from '../../../server/utils/store'
 
 export default defineEventHandler(async (event) => {
   const user = await requireUserSession(event)
@@ -14,6 +14,6 @@ export default defineEventHandler(async (event) => {
     } catch { /* la vidéo est abandonnée de toute façon */ }
   }
 
-  const restant = await addCredits(user.user.id, 20)
-  return { restant }
+  const restant = body?.id ? await refundOnce(body.id, user.user.id, 20) : null
+  return { restant: restant ?? undefined, refunded: restant !== null }
 })
