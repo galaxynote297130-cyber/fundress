@@ -1,3 +1,5 @@
+const SITE = process.env.NUXT_PUBLIC_SITE_URL || 'https://xpicture.app'
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
   devtools: { enabled: false },
@@ -12,10 +14,13 @@ export default defineNuxtConfig({
     veniceModel: 'qwen-image-2-edit',
     stripeSecretKey: '',
     stripeWebhookSecret: '',
+    nowpaymentsApiKey: '',
+    nowpaymentsIpnSecret: '',
+    adminKey: '',
     oauth: { google: { clientId: '', clientSecret: '' } },
     public: {
       googleLogin: false,
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://fundress.pages.dev',
+      siteUrl: SITE,
     },
   },
 
@@ -32,7 +37,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: "Fundress — AI Undress · Déshabille n'importe quelle photo",
+      title: "Xpicture — AI Undress · Déshabille n'importe quelle photo",
       htmlAttrs: { lang: 'fr' },
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
@@ -43,17 +48,21 @@ export default defineNuxtConfig({
         { name: 'robots', content: 'index, follow' },
         { name: 'rating', content: 'mature' },
         { name: 'keywords', content: 'undress ai, nudify, déshabiller une photo, ia, nu, nsfw, retouche photo adulte' },
-        { name: 'description', content: "Déshabille n'importe quelle photo avec l'IA. Envoie une photo, choisis une tenue, télécharge. Contenu adulte 18+, résultat en quelques secondes." },
+        { name: 'description', content: "Déshabille n'importe quelle photo avec l'IA. Envoie une photo, choisis un modèle ou une scène, télécharge. Contenu adulte 18+, résultat en quelques secondes." },
         { property: 'og:type', content: 'website' },
-        { property: 'og:site_name', content: 'Fundress' },
-        { property: 'og:title', content: "Fundress — AI Undress · Déshabille n'importe quelle photo" },
-        { property: 'og:description', content: "Envoie une photo, choisis une tenue, télécharge. Contenu adulte 18+." },
-        { property: 'og:image', content: '/og.png' },
+        { property: 'og:site_name', content: 'Xpicture' },
+        { property: 'og:title', content: "Xpicture — AI Undress · Déshabille n'importe quelle photo" },
+        { property: 'og:description', content: "Envoie une photo, choisis un modèle ou une scène, télécharge. Contenu adulte 18+." },
+        { property: 'og:image', content: `${SITE}/og.png` },
+        { property: 'og:image:type', content: 'image/png' },
+        { property: 'og:image:width', content: '1200' },
+        { property: 'og:image:height', content: '630' },
+        { property: 'og:image:alt', content: 'Xpicture, déshabillage de photo par IA' },
         { property: 'og:locale', content: 'fr_FR' },
         { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:title', content: "Fundress — AI Undress" },
-        { name: 'twitter:description', content: "Envoie une photo, choisis une tenue, télécharge." },
-        { name: 'twitter:image', content: '/og.png' },
+        { name: 'twitter:title', content: 'Xpicture — AI Undress' },
+        { name: 'twitter:description', content: 'Envoie une photo, choisis un modèle ou une scène, télécharge.' },
+        { name: 'twitter:image', content: `${SITE}/og.png` },
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
