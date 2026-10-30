@@ -56,6 +56,9 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 402, statusMessage: 'Crédits insuffisants. Recharge ton compte pour continuer.' })
   }
 
+  const jobId = crypto.randomUUID()
+  await markSpent(jobId, userId, cost)
+
   const payload: Record<string, unknown> = { model, prompt, image, safe_mode: false }
 
   let res: Response
@@ -66,12 +69,12 @@ export default defineEventHandler(async (event) => {
       body: JSON.stringify(payload),
     })
   } catch {
-    await addCredits(userId, cost)
+    await refundOnce(jobId, userId, cost)
     throw createError({ statusCode: 502, statusMessage: 'Connexion impossible. Tes crédits ont été remboursés.' })
   }
 
   if (!res.ok) {
-    await addCredits(userId, cost)
+    await refundOnce(jobId, userId, cost)
     const msg = ERREURS[res.status] || 'La génération a échoué. Réessaie dans un instant.'
     throw createError({ statusCode: res.status === 422 ? 422 : res.status === 402 ? 503 : res.status, statusMessage: `${msg} Tes crédits ont été remboursés.` })
   }
