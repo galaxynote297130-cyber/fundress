@@ -7,16 +7,16 @@ const isHome = slug === ''
 
 const META: Record<string, { title: string; desc: string }> = {
   cgu: {
-    title: "Conditions générales d'utilisation — Fundress",
-    desc: "Conditions générales d'utilisation de Fundress, service de déshabillage de photo par intelligence artificielle.",
+    title: "Conditions générales d'utilisation — Xpicture",
+    desc: "Conditions générales d'utilisation de Xpicture, service de déshabillage de photo par intelligence artificielle.",
   },
   confidentialite: {
-    title: 'Confidentialité — Fundress',
-    desc: "Ce que Fundress stocke réellement : compte, crédits, journal sans image. Les photos ne sont pas conservées sur nos serveurs.",
+    title: 'Confidentialité — Xpicture',
+    desc: "Ce que Xpicture stocke réellement : compte, crédits, journal sans image. Les photos ne sont pas conservées sur nos serveurs.",
   },
   'mentions-legales': {
-    title: 'Mentions légales — Fundress',
-    desc: "Hébergeur et prestataires du service Fundress.",
+    title: 'Mentions légales — Xpicture',
+    desc: "Hébergeur et prestataires du service Xpicture.",
   },
 }
 
@@ -24,46 +24,33 @@ if (!isHome && !META[slug]) {
   throw createError({ statusCode: 404, statusMessage: 'Page introuvable' })
 }
 
-const HOME_TITLE = "Fundress — AI Undress · Déshabille n'importe quelle photo"
+const HOME_TITLE = "Xpicture — AI Undress · Déshabille n'importe quelle photo"
 const HOME_DESC = "Déshabille n'importe quelle photo avec l'IA. Envoie une photo, choisis un modèle, télécharge. Contenu adulte 18+, résultat en quelques secondes."
 
 useHead({
   title: isHome ? HOME_TITLE : META[slug]!.title,
   meta: [{ name: 'description', content: isHome ? HOME_DESC : META[slug]!.desc }],
   link: [{ rel: 'canonical', href: `${siteUrl}${route.path}` }],
-  script: isHome
-    ? [{
-        type: 'application/ld+json',
-        innerHTML: JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'WebApplication',
-          name: 'Fundress',
-          applicationCategory: 'MultimediaApplication',
-          operatingSystem: 'Web',
-          description: HOME_DESC,
-        }),
-      }]
-    : [],
 })
 </script>
 
 <template>
   <ImageEditor v-if="isHome" />
   <div v-else class="page">
-    <header><NuxtLink to="/" class="back">← Fundress</NuxtLink></header>
+    <header><NuxtLink to="/" class="back">← Xpicture</NuxtLink></header>
 
     <template v-if="slug === 'cgu'">
       <h1>Conditions générales d'utilisation</h1>
       <p class="maj">Dernière mise à jour : 30 octobre 2026.</p>
 
       <h2>1. Objet</h2>
-      <p>Fundress est un service en ligne qui modifie des photographies à l'aide de modèles d'intelligence artificielle, notamment pour retirer ou changer des vêtements, et qui peut animer une photo en courte vidéo.</p>
+      <p>Xpicture est un service en ligne qui modifie des photographies à l'aide de modèles d'intelligence artificielle, notamment pour retirer ou changer des vêtements, et qui peut animer une photo en courte vidéo.</p>
 
       <h2>2. Accès et compte</h2>
       <p>L'usage du service est réservé aux personnes de 18 ans et plus. Un compte est nécessaire pour générer. Tu es responsable de la confidentialité de ton mot de passe.</p>
 
       <h2>3. Crédits et paiement</h2>
-      <p>Les générations sont décomptées en crédits. Des crédits sont offerts à l'inscription. Les packs sont payés à l'unité via Stripe et n'expirent pas. Le débit a lieu au lancement d'une génération et n'est remboursé qu'une fois si elle échoue.</p>
+      <p>Les générations sont décomptées en crédits. Des crédits sont offerts à l'inscription. Les packs sont payés à l'unité via Stripe ou en crypto et n'expirent pas. Le débit a lieu au lancement d'une génération et n'est remboursé qu'une fois si elle échoue.</p>
 
       <h2>4. Droit de rétractation</h2>
       <p>Pour les consommateurs de l'Union européenne : en achetant un pack et en l'utilisant immédiatement, tu reconnais que le service est fourni sans attendre la fin du délai de rétractation de 14 jours. Les crédits déjà consommés ne sont pas remboursables ; les crédits non consommés peuvent l'être sur demande.</p>
@@ -92,17 +79,17 @@ useHead({
       <p class="maj">Dernière mise à jour : 30 octobre 2026.</p>
 
       <h2>Éditeur</h2>
-      <p>Fundress, service en ligne de retouche et d'animation de photos par intelligence artificielle.</p>
-      <p>Contact : <a href="mailto:contact@fundress.app">contact@fundress.app</a></p>
+      <p>Xpicture, service en ligne de retouche et d'animation de photos par intelligence artificielle.</p>
+      <p>Contact : <a href="mailto:contact@xpicture.app">contact@xpicture.app</a></p>
 
       <h2>Hébergeur</h2>
       <p>Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, États-Unis — +1 650 319 8930.</p>
 
       <h2>Prestataires techniques</h2>
-      <p>Génération d'images et de vidéos : Venice AI. Paiement : Stripe Payments Europe, Ltd.</p>
+      <p>Génération d'images et de vidéos : Venice AI. Paiement : Stripe Payments Europe, Ltd. et NOWPayments.</p>
 
       <h2>Propriété intellectuelle</h2>
-      <p>Le nom, l'interface et le code de Fundress sont protégés. Les images générées appartiennent à leur auteur.</p>
+      <p>Le nom, l'interface et le code de Xpicture sont protégés. Les images générées appartiennent à leur auteur.</p>
     </template>
 
     <template v-else>
@@ -110,7 +97,7 @@ useHead({
       <p class="maj">Dernière mise à jour : 30 octobre 2026.</p>
 
       <h2>Responsable du traitement</h2>
-      <p>L'éditeur de Fundress, joignable à <a href="mailto:contact@fundress.app">contact@fundress.app</a>.</p>
+      <p>L'éditeur de Xpicture, joignable à <a href="mailto:contact@xpicture.app">contact@xpicture.app</a>.</p>
 
       <h2>Ce que deviennent tes photos</h2>
       <p>Ta photo est transmise à Venice AI uniquement pour produire le résultat. Elle n'est pas revendue et n'est pas publiée sans ton accord. Aucune image n'est conservée sur nos serveurs : le résultat est renvoyé à ton navigateur.</p>
@@ -120,23 +107,23 @@ useHead({
 
       <h2>Ce qui est stocké sur nos serveurs</h2>
       <p>Ton adresse email, ton nom affiché, l'empreinte chiffrée de ton mot de passe et ton solde de crédits.</p>
-      <p>Un journal des générations conserve l'email, le moteur, la scène et la date, sans aucune image. Il sert à mesurer l'usage et à détecter les abus. Il n'a pas encore de durée d'effacement automatique.</p>
-      <p>Un marqueur de génération est conservé 24 heures pour éviter les remboursements en double, et un compteur de débit 2 minutes.</p>
+      <p>Un journal des générations conserve l'email, le moteur, la scène et la date, sans aucune image. Il sert à mesurer l'usage et à détecter les abus. Il est élagué au bout de 90 jours et plafonné en nombre d'entrées.</p>
+      <p>Un marqueur de génération est conservé 24 heures pour éviter les remboursements en double, et un compteur de débit quelques minutes.</p>
 
       <h2>Bases légales</h2>
       <p>Exécution du contrat pour le compte, les crédits et les générations. Intérêt légitime pour la sécurité et la prévention des abus. Le journal et les compteurs relèvent de ce second point.</p>
 
       <h2>Cookies</h2>
-      <p>Un seul cookie est déposé : celui de session, qui te garde connecté. Aucun traceur publicitaire, aucun outil de mesure d'audience tiers.</p>
+      <p>Deux cookies seulement : celui de session, qui te garde connecté, et celui de vérification d'âge. Aucun traceur publicitaire, aucun outil de mesure d'audience tiers.</p>
 
       <h2>Prestataires et transferts hors Union européenne</h2>
-      <p>Cloudflare (hébergement), Venice AI (génération) et Stripe (paiement) sont situés hors Union européenne. Les transferts s'appuient sur les clauses contractuelles types de la Commission européenne.</p>
+      <p>Cloudflare (hébergement), Venice AI (génération), Stripe et NOWPayments (paiement) sont situés hors Union européenne ou y font appel. Les transferts s'appuient sur les clauses contractuelles types de la Commission européenne.</p>
 
       <h2>Durées de conservation</h2>
-      <p>Compte et crédits : jusqu'à la suppression du compte. Journal : sans limite pour l'instant. Marqueur de remboursement : 24 heures. Compteur de débit : 2 minutes. Galerie : 1 heure, sur ton appareil.</p>
+      <p>Compte et crédits : jusqu'à la suppression du compte. Journal : 90 jours. Marqueur de remboursement : 24 heures. Compteur de débit : quelques minutes. Galerie : 1 heure, sur ton appareil.</p>
 
       <h2>Tes droits</h2>
-      <p>Accès, rectification, effacement, limitation, opposition et portabilité. Écris à <a href="mailto:contact@fundress.app">contact@fundress.app</a>. Tu peux aussi saisir la CNIL, 3 place de Fontenoy, 75007 Paris.</p>
+      <p>Accès, rectification, effacement, limitation, opposition et portabilité. Écris à <a href="mailto:contact@xpicture.app">contact@xpicture.app</a>. Tu peux aussi saisir la CNIL, 3 place de Fontenoy, 75007 Paris.</p>
     </template>
 
     <SiteFooter />
