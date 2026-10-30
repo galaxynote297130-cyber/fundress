@@ -2,7 +2,7 @@
 const route = useRoute()
 const { public: { siteUrl } } = useRuntimeConfig()
 
-const TITRE = "Fundress — AI Undress · Déshabille n'importe quelle photo"
+const TITRE = "Xpicture — AI Undress · Déshabille n'importe quelle photo"
 const DESC = "Déshabille n'importe quelle photo avec l'IA. Envoie une photo, choisis un modèle, télécharge. Contenu adulte 18+, résultat en quelques secondes."
 
 useHead({
@@ -14,7 +14,7 @@ useHead({
     innerHTML: JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'WebApplication',
-      name: 'Fundress',
+      name: 'Xpicture',
       applicationCategory: 'MultimediaApplication',
       operatingSystem: 'Web',
       description: DESC,
