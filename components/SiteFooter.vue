@@ -3,7 +3,8 @@
     <nav>
       <NuxtLink to="/cgu">CGU</NuxtLink>
       <NuxtLink to="/confidentialite">Confidentialité</NuxtLink>
-      <a href="mailto:support@exemple.com">Contact</a>
+      <NuxtLink to="/mentions-legales">Mentions légales</NuxtLink>
+      <a href="mailto:contact@fundress.app">Contact</a>
     </nav>
   </footer>
 </template>
