@@ -10,6 +10,14 @@ export default defineEventHandler(async (event) => {
   if (password.length < 8) {
     throw createError({ statusCode: 400, statusMessage: 'Le mot de passe doit faire au moins 8 caractères.' })
   }
+
+  if (!(await throttle(`register:${ipDe(event)}`, 5, 3600))) {
+    throw createError({
+      statusCode: 429,
+      statusMessage: 'Trop de comptes créés depuis cet appareil. Réessaie dans une heure.'
+    })
+  }
+
   if (await getUserByEmail(email)) {
     throw createError({ statusCode: 409, statusMessage: 'Un compte existe déjà avec cet email. Connecte-toi.' })
   }
