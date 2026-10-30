@@ -16,7 +16,7 @@ const META: Record<string, { title: string; desc: string }> = {
   },
   'mentions-legales': {
     title: 'Mentions légales — Fundress',
-    desc: "Éditeur, hébergeur et prestataires du service Fundress.",
+    desc: "Hébergeur et prestataires du service Fundress.",
   },
 }
 
@@ -92,23 +92,14 @@ useHead({
       <p class="maj">Dernière mise à jour : 30 octobre 2026.</p>
 
       <h2>Éditeur</h2>
-      <p>Fundress est édité par <b>[TON PRÉNOM NOM]</b>, entrepreneur individuel (micro-entreprise).</p>
-      <p>SIRET : <b>[TON SIRET — ou « en cours d'immatriculation »]</b></p>
-      <p>Adresse : <b>[TON ADRESSE]</b></p>
+      <p>Fundress, service en ligne de retouche et d'animation de photos par intelligence artificielle.</p>
       <p>Contact : <a href="mailto:contact@fundress.app">contact@fundress.app</a></p>
-      <p>TVA non applicable, article 293 B du Code général des impôts.</p>
-
-      <h2>Directeur de la publication</h2>
-      <p>[TON PRÉNOM NOM], joignable à l'adresse de contact ci-dessus.</p>
 
       <h2>Hébergeur</h2>
       <p>Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, États-Unis — +1 650 319 8930.</p>
 
       <h2>Prestataires techniques</h2>
       <p>Génération d'images et de vidéos : Venice AI. Paiement : Stripe Payments Europe, Ltd.</p>
-
-      <h2>Médiation de la consommation</h2>
-      <p>Conformément à l'article L612-1 du Code de la consommation, le consommateur peut recourir gratuitement à un médiateur : <b>[NOM ET SITE DU MÉDIATEUR]</b>.</p>
 
       <h2>Propriété intellectuelle</h2>
       <p>Le nom, l'interface et le code de Fundress sont protégés. Les images générées appartiennent à leur auteur.</p>
@@ -160,6 +151,5 @@ h1 { font-family: var(--f-display); font-size: 1.6rem; letter-spacing: -.02em; m
 h2 { font-family: var(--f-display); font-size: 1rem; margin: 22px 0 6px; }
 p { color: var(--muted); line-height: 1.55; margin: 0 0 8px; font-size: .92rem; }
 p a { color: var(--accent); }
-b { color: var(--fg); }
 .maj { font-size: .8rem; }
 </style>
