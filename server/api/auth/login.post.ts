@@ -1,7 +1,20 @@
 // Connexion par email + mot de passe
 export default defineEventHandler(async (event) => {
   const body = await readBody<{ email?: string; password?: string }>(event)
-  const user = await getUserByEmail(body?.email || '')
+  const email = normalizeEmail(body?.email || '')
+  const ip = ipDe(event)
+
+  const parEmail = await throttle(`login:${email}`, 8, 600)
+  const parIp = await throttle(`loginip:${ip}`, 20, 600)
+
+  if (!parEmail || !parIp) {
+    throw createError({
+      statusCode: 429,
+      statusMessage: 'Trop de tentatives. Réessaie dans quelques minutes.'
+    })
+  }
+
+  const user = await getUserByEmail(email)
   const ok = user?.passwordHash && await checkPassword(user.passwordHash, body?.password || '')
 
   if (!user || !ok) {
