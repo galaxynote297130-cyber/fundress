@@ -1,14 +1,15 @@
 export default defineEventHandler(async (event) => {
-  const attendu = useRuntimeConfig(event).adminKey
+  const brut = process.env.NUXT_ADMIN_KEY
+  const attendu = (brut || useRuntimeConfig(event).adminKey || '').trim()
 
   if (!attendu) {
     throw createError({
       statusCode: 500,
-      statusMessage: 'NUXT_ADMIN_KEY absente de l’environnement. Ajoute-la en Production puis relance un déploiement.'
+      statusMessage: `NUXT_ADMIN_KEY introuvable. brute=${brut === undefined ? 'absente' : 'présente'} config=${useRuntimeConfig(event).adminKey ? 'présente' : 'vide'}`
     })
   }
 
-  const fourni = getHeader(event, 'x-admin-key') || String(getQuery(event).key || '')
+  const fourni = (getHeader(event, 'x-admin-key') || String(getQuery(event).key || '')).trim()
 
   if (fourni !== attendu) {
     throw createError({
